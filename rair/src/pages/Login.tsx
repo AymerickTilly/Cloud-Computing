@@ -20,8 +20,7 @@ const FormWithReactHookFormAndZod = () => {
 
   const onSubmit = async (data: TsignInSchema) => {
     try {
-      const user = await signIn({ username: data.email, password: data.password });
-      console.log(user);
+      await signIn({ username: data.email, password: data.password });
       navigate('/');
     } catch (err: unknown) {
       console.log(err);
