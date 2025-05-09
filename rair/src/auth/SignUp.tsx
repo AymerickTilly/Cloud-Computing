@@ -19,7 +19,7 @@ export async function handleSignUp({
         userAttributes: {
           email,
         },
-        autoSignIn: true,
+        autoSignIn: false,
       },
     });
 
