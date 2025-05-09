@@ -2,11 +2,15 @@ import { TsignUpConfirmSchema, signUpConfirmSchema } from "../schemas/TsignUpCon
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Container, Form, Button, Row, Col } from "react-bootstrap";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { handleSignUpConfirmation } from "../auth/ConfirmSignUp";
+import { signIn } from "../auth/SignIn";
+import { useAuthStore } from "../auth/AuthStore";
 
 const ConfirmRegisterForm = () => {
 
   const navigate = useNavigate();
+  const { resetAuth, setLoading } = useAuthStore.getState();
 
   const {
     register,
@@ -19,14 +23,33 @@ const ConfirmRegisterForm = () => {
 
   const onSubmit = async (data: TsignUpConfirmSchema) => {
     try {
-      //const user = await signIn({ username: data.email, password: data.password});
-      //console.log(user);
-      navigate('/');
-    } catch (err: unknown) {
-      console.log(err);
+      await handleSignUpConfirmation({
+        username: data.email,
+        confirmationCode: data.code,
+      });
+  
+      // Proceed to sign in after confirmation
+      try {
+        await signIn({ username: data.email, password: data.password });
+        useAuthStore.getState().setPendingUsername(null);
+        navigate('/');
+      } catch (err: unknown) {
+        console.error("Sign-in error after confirmation:", err);
+        console.log("There was an error with your sign up confirmation")
+        resetAuth()
+        setLoading(false)
+        navigate('/login');
+      }
+    } catch (err) {
+      console.error("Confirmation error:", err);
+      console.log("Another error")
+      resetAuth()
+      setLoading(false)
     }
+  
     reset();
   };
+  
 
   return (
     <Container className="d-flex align-items-center justify-content-center min-vh-100">
@@ -35,15 +58,30 @@ const ConfirmRegisterForm = () => {
           <h3 className="text-center mb-4">Confirmation Code</h3>
           <Form onSubmit={handleSubmit(onSubmit)}>
 
-          <Form.Group className="mb-3" controlId="formUsername">
-              <Form.Label>Username</Form.Label>
+          <Form.Group className="mb-3" controlId="formEmail">
+              <Form.Label>Email</Form.Label>
               <Form.Control
-                placeholder="Enter your username"
-                {...register("username")}
-                isInvalid={!!errors.username}
+                type="email"
+                placeholder="Enter your email"
+                {...register("email")}
+                isInvalid={!!errors.email}
               />
               <Form.Control.Feedback type="invalid">
-                {errors.username?.message}
+                {errors.email?.message}
+              </Form.Control.Feedback>
+            </Form.Group>
+
+
+            <Form.Group className="mb-3" controlId="formPassword">
+              <Form.Label>Password</Form.Label>
+              <Form.Control
+                type="password"
+                placeholder="Enter password"
+                {...register("password")}
+                isInvalid={!!errors.password}
+              />
+              <Form.Control.Feedback type="invalid">
+                {errors.password?.message}
               </Form.Control.Feedback>
             </Form.Group>
 
