@@ -4,9 +4,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Container, Form, Button, Row, Col } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
+import { useAuthStore } from "../auth/AuthStore";
 
 const RegisterForm = () => {
   const navigate = useNavigate();
+  const { resetAuth, setLoading } = useAuthStore.getState();
 
   const {
     register,
@@ -18,22 +20,31 @@ const RegisterForm = () => {
   });
 
   const onSubmit = async (data: TsignUpSchema) => {
-    try {
-      const result = await handleSignUp({
+    if (data.password === data.confirmpassword){
+      try {
+        const result = await handleSignUp({
         username: data.username,
         password: data.password,
-        email: data.email,
+        email: data.username,
       });
 
-      if (result?.nextStep?.signUpStep === 'CONFIRM_SIGN_UP') {
-        navigate('/confirmRegister', { state: { username: data.username } });
+
+      if (!result?.isSignUpComplete) {
+        useAuthStore.getState().setPendingUsername(data.username);
+        navigate('/confirmRegister');
       } else if (result?.isSignUpComplete) {
+        resetAuth()
+        setLoading(false)
         navigate('/login'); // fallback
       }
-    } catch (err) {
-      console.error("Signup error:", err);
-    }
-    reset();
+      } catch (err) {
+        console.error("Signup error:", err);
+      }
+      }
+      else{
+        alert('Password must match')
+      }
+      reset();
   };
 
   return (
@@ -44,27 +55,15 @@ const RegisterForm = () => {
           <Form onSubmit={handleSubmit(onSubmit)}>
 
             <Form.Group className="mb-3" controlId="formUsername">
-              <Form.Label>Username</Form.Label>
+              <Form.Label>Your email as username</Form.Label>
               <Form.Control
+                type="email"
                 placeholder="Enter username"
                 {...register("username")}
                 isInvalid={!!errors.username}
               />
               <Form.Control.Feedback type="invalid">
                 {errors.username?.message}
-              </Form.Control.Feedback>
-            </Form.Group>
-
-            <Form.Group className="mb-3" controlId="formEmail">
-              <Form.Label>Email</Form.Label>
-              <Form.Control
-                type="email"
-                placeholder="Enter email"
-                {...register("email")}
-                isInvalid={!!errors.email}
-              />
-              <Form.Control.Feedback type="invalid">
-                {errors.email?.message}
               </Form.Control.Feedback>
             </Form.Group>
 
