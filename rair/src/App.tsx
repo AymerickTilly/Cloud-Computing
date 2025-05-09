@@ -13,8 +13,10 @@ import NavigationBar from './components/Navbar';
 import PrivateRoutes from './routes/PrivateRoutes';
 import ProtectedRoutes from './routes/ProtectedRoutes';
 import ConfirmRegisterForm from './pages/ConfirmRegister';
+import ConfirmRegisterRoute from './routes/ConfirmRegisterRoute';
 
 const App = () => {
+
   return (
     <>
       <BrowserRouter>
@@ -22,13 +24,16 @@ const App = () => {
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<RegisterForm />} />
-          <Route path="/confirmRegister" element={<ConfirmRegisterForm />} />
+
+          
           <Route path="/" element={<Home />} />
+          <Route path="/shop" element={<Shop />} />
+
+          <Route element={<ConfirmRegisterRoute/>}>
+          <Route path="/confirmRegister" element={<ConfirmRegisterForm />} />
+          </Route>
 
           <Route element={<ProtectedRoutes />}>
-            <Route path="/shop" element={<Shop />} />
-
-
             <Route element={<PrivateRoutes allowedGroups={['Admin']} />}>
               <Route path="/adminboard" element={<AdminPage />} />
             </Route>
