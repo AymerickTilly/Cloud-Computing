@@ -2,6 +2,7 @@ import { useAuthStore } from '../auth/AuthStore'; // adjust the path as needed
 
 const Home = () => {
   const { user, email, groups, loading } = useAuthStore();
+  console.log(email)
 
   if (loading) return <p>Loading...</p>;
 
