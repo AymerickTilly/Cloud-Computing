@@ -3,7 +3,7 @@ import { useAuthStore } from "../auth/AuthStore";
 
 const ConfirmRegisterRoute= () => {
   const { pendingUsername } = useAuthStore();
-  return pendingUsername ? <Outlet /> : <Navigate to="/register" replace />;
+  return pendingUsername ? <Outlet /> : <Navigate to="/" replace />;
 };
 
 export default ConfirmRegisterRoute;
