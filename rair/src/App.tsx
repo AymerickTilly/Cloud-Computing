@@ -14,18 +14,26 @@ import PrivateRoutes from './routes/PrivateRoutes';
 import ProtectedRoutes from './routes/ProtectedRoutes';
 import ConfirmRegisterForm from './pages/ConfirmRegister';
 import ConfirmRegisterRoute from './routes/ConfirmRegisterRoute';
+import { useEffect } from 'react';
+import { initAuth } from './auth/AuthStore';
+import AuthenticationRoutes from './routes/AuthenticationRoutes';
 
 const App = () => {
+
+  useEffect(() => {
+    initAuth();
+  }, []);
 
   return (
     <>
       <BrowserRouter>
         <NavigationBar/>
         <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<RegisterForm />} />
-
-          
+          <Route element={<AuthenticationRoutes/>}>
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<RegisterForm />} />
+          </Route>
+        
           <Route path="/" element={<Home />} />
           <Route path="/shop" element={<Shop />} />
 

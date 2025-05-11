@@ -1,18 +1,18 @@
-// In AuthStore.ts
 import { create } from 'zustand';
+import { fetchAuthSession, getCurrentUser } from 'aws-amplify/auth';
+
+
 
 type AuthStore = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  user: any;
+  user: any | null;
   loading: boolean;
-  token: string | null;
   email: string | null;
   groups: string[];
   pendingUsername: string | null;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  setUser: (user: any) => void;
+  setUser: (user: any | null) => void;
   setLoading: (loading: boolean) => void;
-  setToken: (token: string | null) => void;
   setEmail: (email: string | null) => void;
   setGroups: (groups: string[]) => void;
   setPendingUsername: (username: string | null) => void;
@@ -22,22 +22,57 @@ type AuthStore = {
 export const useAuthStore = create<AuthStore>((set) => ({
   user: null,
   loading: false,
-  token: null,
   email: null,
   groups: [],
   pendingUsername: null,
   setUser: (user) => set({ user }),
   setLoading: (loading) => set({ loading }),
-  setToken: (token) => set({ token }),
   setEmail: (email) => set({ email }),
   setGroups: (groups) => set({ groups }),
   setPendingUsername: (username) => set({ pendingUsername: username }),
   resetAuth: () =>
     set({
       user: null,
-      token: null,
       email: null,
       groups: [],
+      pendingUsername: null,
       loading: false,
     }),
 }));
+
+// Initialize auth state on app startup
+export const initAuth = async () => {
+  const { setLoading, setUser, setEmail, setGroups, resetAuth } = useAuthStore.getState();
+  setLoading(true);
+  try {
+    // Fetch session first to verify tokens
+    const session = await fetchAuthSession();
+    const idToken = session.tokens?.idToken?.payload;
+
+    if (!idToken) {
+      throw new Error('No ID token found');
+    }
+
+    // Extract email and groups from ID token
+    const rawEmail = idToken.email;
+    const email = typeof rawEmail === 'string' ? rawEmail : null;
+    const rawGroups = idToken['cognito:groups'];
+    const groups = Array.isArray(rawGroups) && rawGroups.every((g) => typeof g === 'string')
+      ? rawGroups
+      : [];
+
+    // Get user data
+    const user = await getCurrentUser();
+
+    // Update store
+    setUser(user);
+    setEmail(email);
+    setGroups(groups);
+  } catch (error) {
+    console.error('Error initializing auth:', error);
+    resetAuth(); // Clear state if no valid session/user
+  } finally {
+    setLoading(false);
+  }
+};
+
