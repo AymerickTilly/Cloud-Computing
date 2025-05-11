@@ -1,30 +1,40 @@
 import { Navigate, Outlet } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { getCurrentUser } from 'aws-amplify/auth';
 import { useAuthStore } from '../auth/AuthStore';
 
 const AuthenticationRoutes = () => {
   const { user, loading, pendingUsername } = useAuthStore();
+  const [isChecking, setIsChecking] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  if (loading) {
-    console.log(user)
-    console.log(pendingUsername)
-    console.log("Here 1st if")
-    return <div>Loading...</div>; // Optional loading UI
+  // Check authentication status on mount
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        await getCurrentUser();
+        setIsAuthenticated(true);
+      } catch {
+        setIsAuthenticated(false);
+      } finally {
+        setIsChecking(false);
+      }
+    };
+    checkAuth();
+  }, []);
+
+  // Show loading UI while checking
+  if (loading || isChecking) {
+    return <div>Loading...</div>;
   }
 
-  // Redirect if user is logged in or in registration process
-  if (user || pendingUsername) {
-    console.log(user)
-    console.log(pendingUsername)
-    console.log("Here 2nd if")
+  // Redirect authenticated users or those in registration to "/"
+  if (isAuthenticated || user || pendingUsername) {
     return <Navigate to="/" replace />;
   }
 
   // Allow access to /login or /register
-  console.log(user)
-  console.log(pendingUsername)
-  console.log("Here end")
   return <Outlet />;
 };
 
 export default AuthenticationRoutes;
-
