@@ -17,16 +17,19 @@ import ConfirmRegisterRoute from './routes/ConfirmRegisterRoute';
 import { useEffect } from 'react';
 import { initAuth } from './auth/AuthStore';
 import AuthenticationRoutes from './routes/AuthenticationRoutes';
+import LocationManager from './auth/LocationManager';
 
 const App = () => {
 
   useEffect(() => {
     initAuth();
+
   }, []);
 
   return (
     <>
       <BrowserRouter>
+        <LocationManager/>
         <NavigationBar/>
         <Routes>
           <Route element={<AuthenticationRoutes/>}>
