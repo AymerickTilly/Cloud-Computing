@@ -12,5 +12,6 @@ export const signOut = async () => {
   } finally {
     resetAuth(); // Clear Zustand store state
     setLoading(false); // Reset loading state
+    localStorage.removeItem('lastLocation');
   }
 };
