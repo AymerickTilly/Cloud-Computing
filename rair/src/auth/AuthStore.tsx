@@ -76,3 +76,8 @@ export const initAuth = async () => {
   }
 };
 
+export const getAccessToken = async () => {
+  const session = await fetchAuthSession();
+  return session.tokens?.accessToken?.toString() || null;
+};
+
