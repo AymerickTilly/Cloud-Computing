@@ -105,7 +105,7 @@ const ConfirmRegisterForm = () => {
               disabled={isSubmitting}
               className="w-100"
             >
-              {isSubmitting ? "Logging in..." : "Login"}
+              {isSubmitting ? "Confirming ..." : "Confirm"}
             </Button>
           </Form>
         </Col>
