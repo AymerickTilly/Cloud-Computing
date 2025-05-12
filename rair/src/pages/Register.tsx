@@ -20,32 +20,25 @@ const RegisterForm = () => {
   });
 
   const onSubmit = async (data: TsignUpSchema) => {
-    if (data.password === data.confirmpassword){
-      try {
-        const result = await handleSignUp({
-        username: data.username,
-        password: data.password,
-        email: data.username,
-      });
-
-
-      if (!result?.isSignUpComplete) {
-        useAuthStore.getState().setPendingUsername(data.username);
-        navigate('/confirmRegister');
-      } else if (result?.isSignUpComplete) {
-        resetAuth()
-        setLoading(false)
-        navigate('/login'); // fallback
-      }
-      } catch (err) {
-        console.error("Signup error:", err);
-      }
-      }
-      else{
-        alert('Password must match')
-      }
-      reset();
-  };
+  try {
+    const result = await handleSignUp({
+      username: data.username,
+      password: data.password,
+      email: data.username,
+    });
+    if (!result?.isSignUpComplete) {
+      useAuthStore.getState().setPendingUsername(data.username);
+      navigate('/confirmRegister');
+    } else {
+      resetAuth();
+      setLoading(false);
+      navigate('/login');
+    }
+  } catch (err) {
+    console.error('Signup error:', err);
+  }
+  reset();
+};
 
   return (
     <Container className="d-flex align-items-center justify-content-center min-vh-100">
