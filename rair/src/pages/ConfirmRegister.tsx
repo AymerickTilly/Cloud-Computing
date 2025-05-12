@@ -10,7 +10,7 @@ import { useAuthStore } from "../auth/AuthStore";
 const ConfirmRegisterForm = () => {
 
   const navigate = useNavigate();
-  const { resetAuth, setLoading } = useAuthStore.getState();
+  const { resetAuth, setLoading, pendingUsername } = useAuthStore.getState();
 
   const {
     register,
@@ -21,6 +21,7 @@ const ConfirmRegisterForm = () => {
     resolver: zodResolver(signUpConfirmSchema),
   });
 
+  // Rest of the component
   const onSubmit = async (data: TsignUpConfirmSchema) => {
     try {
       await handleSignUpConfirmation({
@@ -59,17 +60,17 @@ const ConfirmRegisterForm = () => {
           <Form onSubmit={handleSubmit(onSubmit)}>
 
           <Form.Group className="mb-3" controlId="formEmail">
-              <Form.Label>Email</Form.Label>
-              <Form.Control
+            <Form.Label>Email</Form.Label>
+            <Form.Control
                 type="email"
-                placeholder="Enter your email"
+                placeholder={pendingUsername ? pendingUsername : "Enter your email"}
                 {...register("email")}
                 isInvalid={!!errors.email}
-              />
-              <Form.Control.Feedback type="invalid">
-                {errors.email?.message}
-              </Form.Control.Feedback>
-            </Form.Group>
+            />
+            <Form.Control.Feedback type="invalid">
+              {errors.email?.message}
+            </Form.Control.Feedback>
+          </Form.Group>
 
 
             <Form.Group className="mb-3" controlId="formPassword">
