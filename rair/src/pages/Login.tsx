@@ -16,6 +16,9 @@ const FormWithReactHookFormAndZod = () => {
     reset,
   } = useForm<TsignInSchema>({
     resolver: zodResolver(signInSchema),
+    /*defaultValues:{
+      rememberMe: false,
+    }*/
   });
 
   const onSubmit = async (data: TsignInSchema) => {
