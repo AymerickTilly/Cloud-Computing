@@ -15,11 +15,13 @@ import ProtectedRoutes from './routes/ProtectedRoutes';
 import ConfirmRegisterForm from './pages/ConfirmRegister';
 import ConfirmRegisterRoute from './routes/ConfirmRegisterRoute';
 import { useEffect } from 'react';
-import { initAuth } from './auth/AuthStore';
+import { initAuth, useAuthStore } from './auth/AuthStore';
 import AuthenticationRoutes from './routes/AuthenticationRoutes';
 import LocationManager from './auth/LocationManager';
 
 const App = () => {
+
+  const { user } = useAuthStore();
 
   useEffect(() => {
     initAuth();
@@ -30,24 +32,25 @@ const App = () => {
     <>
       <BrowserRouter>
         <LocationManager/>
-        <NavigationBar/>
+        {user && <NavigationBar />}
         <Routes>
           <Route element={<AuthenticationRoutes/>}>
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<RegisterForm />} />
           </Route>
         
-          <Route path="/" element={<Home />} />
-          <Route path="/shop" element={<Shop />} />
+          
 
           <Route element={<ConfirmRegisterRoute/>}>
-          <Route path="/confirmRegister" element={<ConfirmRegisterForm />} />
+            <Route path="/confirmRegister" element={<ConfirmRegisterForm />} />
           </Route>
 
           <Route element={<ProtectedRoutes />}>
+            <Route path="/" element={<Home />} />
+            <Route path="/shop" element={<Shop />} />
             <Route element={<PrivateRoutes allowedGroups={['Admin']} />}>
               <Route path="/adminboard" element={<AdminPage />} />
-            </Route>
+          </Route>
 
             <Route element={<PrivateRoutes allowedGroups={['Customer']} />}>
               <Route path="/profile" element={<Profile />} />
