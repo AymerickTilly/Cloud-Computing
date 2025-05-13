@@ -10,7 +10,7 @@ import { useAuthStore } from "../auth/AuthStore";
 const ConfirmRegisterForm = () => {
 
   const navigate = useNavigate();
-  const { resetAuth, setLoading, pendingUsername } = useAuthStore();
+  const { resetAuth, setLoading } = useAuthStore();
 
   const {
     register,
@@ -63,7 +63,7 @@ const ConfirmRegisterForm = () => {
             <Form.Label>Email</Form.Label>
             <Form.Control
                 type="email"
-                placeholder={pendingUsername ? pendingUsername : "Enter your email"}
+                placeholder="Enter your email"
                 {...register("email")}
                 isInvalid={!!errors.email}
             />
