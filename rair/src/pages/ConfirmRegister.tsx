@@ -10,7 +10,7 @@ import { useAuthStore } from "../auth/AuthStore";
 const ConfirmRegisterForm = () => {
 
   const navigate = useNavigate();
-  const { resetAuth, setLoading, pendingUsername } = useAuthStore.getState();
+  const { resetAuth, setLoading, pendingUsername } = useAuthStore();
 
   const {
     register,
