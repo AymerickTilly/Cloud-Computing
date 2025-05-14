@@ -18,6 +18,9 @@ import { useEffect } from 'react';
 import { initAuth, useAuthStore } from './auth/AuthStore';
 import AuthenticationRoutes from './routes/AuthenticationRoutes';
 import LocationManager from './auth/LocationManager';
+import AskResetCode from './pages/AskResetCode';
+import ResetPasswordRoute from './routes/resetPasswordRoute';
+import ResetPassword from './pages/ResetPassword';
 
 const App = () => {
 
@@ -39,8 +42,10 @@ const App = () => {
             <Route path="/register" element={<RegisterForm />} />
           </Route>
         
-          
-
+          <Route element={<ResetPasswordRoute/>}>
+            <Route path="/askResetCode" element={<AskResetCode/>}/>
+            <Route path="/resetPassword" element={<ResetPassword/>}/>
+          </Route>
           <Route element={<ConfirmRegisterRoute/>}>
             <Route path="/confirmRegister" element={<ConfirmRegisterForm />} />
           </Route>
