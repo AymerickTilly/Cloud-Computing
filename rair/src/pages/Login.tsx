@@ -4,10 +4,12 @@ import { useForm } from "react-hook-form";
 import { signIn } from "../auth/SignIn";
 import { Container, Form, Button, Row, Col } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
+import { useAuthStore } from "../auth/AuthStore";
 
 const FormWithReactHookFormAndZod = () => {
 
   const navigate = useNavigate();
+  const { setPasswordReset } = useAuthStore();
 
   const {
     register,
@@ -69,6 +71,13 @@ const FormWithReactHookFormAndZod = () => {
               {isSubmitting ? "Logging in..." : "Login"}
             </Button>
           </Form>
+
+          <div className="text-center mt-3">
+            <small>
+              Forgot Password?{" "}
+              <Link onClick={() => setPasswordReset(true)} to="/askResetCode" >Click here</Link>
+            </small>
+          </div>
 
           <div className="text-center mt-3">
             <small>
