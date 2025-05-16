@@ -1,6 +1,7 @@
+// Home.jsx
 import { Container } from 'react-bootstrap';
 import { useAuthStore } from '../auth/AuthStore';
-import CarouselComponent from '../components/Carousel'; // ✅ Import your Carousel here
+import CarouselComponent from '../components/Carousel';
 
 const Home = () => {
   const { user, email, groups, loading } = useAuthStore();
@@ -9,16 +10,22 @@ const Home = () => {
 
   return (
     <Container
-      className="d-flex flex-column justify-content-center align-items-center text-center py-5"
+      className="d-flex flex-column align-items-center text-center py-5"
       style={{ fontFamily: 'Times New Roman, sans-serif' }}
     >
       <h1 className="display-1 mb-4">RAIR Clothing.</h1>
 
-       {/* Carousels side-by-side */}
-      <div className="d-flex flex-row justify-content-center flex-wrap gap-3 mb-4">
-        <CarouselComponent />
-        <CarouselComponent />
-        <CarouselComponent />
+      {/* Row of 3 carousels side by side */}
+      <div className="d-flex flex-row justify-content-center gap-4 flex-wrap w-100">
+        <div style={{ flex: '1 1 30%' }}>
+          <CarouselComponent carouselId="one" />
+        </div>
+        <div style={{ flex: '1 1 30%' }}>
+          <CarouselComponent carouselId="two" />
+        </div>
+        <div style={{ flex: '1 1 30%' }}>
+          <CarouselComponent carouselId="three" />
+        </div>
       </div>
 
       {user ? (
