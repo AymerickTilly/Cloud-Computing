@@ -19,8 +19,8 @@ import { initAuth, useAuthStore } from './auth/AuthStore';
 import AuthenticationRoutes from './routes/AuthenticationRoutes';
 import LocationManager from './auth/LocationManager';
 import AskResetCode from './pages/AskResetCode';
-import ResetPasswordRoute from './routes/resetPasswordRoute';
 import ResetPassword from './pages/ResetPassword';
+import ResetPasswordRoute from './routes/ResetPasswordRoute';
 
 const App = () => {
 

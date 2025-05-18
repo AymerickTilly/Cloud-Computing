@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Button, Col, Container, Form, Row } from "react-bootstrap";
 import { useNavigate } from "react-router";
 import { useAuthStore } from "../auth/AuthStore";
-import handleResetPassword from "../auth/sendPwdVerificationCode";
+import handleResetPassword from "../auth/SendPwdVerificationCode";
 
 const AskResetCode = () => {
 
