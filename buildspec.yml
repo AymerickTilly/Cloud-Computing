@@ -10,8 +10,6 @@ phases:
 
   build:
     commands:
-      - pwd
-      - cd rair
       - echo Building the React app...
       - npm run build
 
