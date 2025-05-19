@@ -1,7 +1,6 @@
 import React from 'react';
 import { Container, Row, Col, Card } from 'react-bootstrap';
 
-// Import images
 import firstImage from '../assets/first-slide.jpg';
 import secondImage from '../assets/second-slide.jpg';
 import thirdImage from '../assets/third-slide.jpg';
@@ -9,8 +8,13 @@ import fourthImage from '../assets/catalog-item-1.jpg';
 import fifthImage from '../assets/catalog-item-2.jpg';
 import sixthImage from '../assets/catalog-item-3.jpg';
 
-// Use imported image variables in your data
-const items = [
+interface ShopItem {
+  id: number;
+  title: string;
+  image: string;
+}
+
+const items: ShopItem[] = [
   { id: 1, title: "Shirt", image: fourthImage },
   { id: 2, title: "Pants", image: fifthImage },
   { id: 3, title: "Jacket", image: sixthImage },
