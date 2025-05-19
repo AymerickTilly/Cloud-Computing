@@ -1,5 +1,117 @@
+import { useFieldArray, useForm } from "react-hook-form";
+import { addItemSchema, TAddItemSchema } from "../schemas/TaddItemSchemas";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Button, Col, Container, Form, Row } from "react-bootstrap";
+
 const AddItemPage = () => {
-  return <div className="p-4">Add Item Form Here</div>;
+  const {
+    register,
+    handleSubmit,
+    control,
+    formState: { errors, isSubmitting },
+    reset,
+  } = useForm<TAddItemSchema>({
+    resolver: zodResolver(addItemSchema),
+    defaultValues: {
+      stock: [{ size: "M", variation: "default", stockAmount: 0 }],
+    },
+  });
+
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "stock",
+  });
+
+  const onSubmit = async (data: TAddItemSchema) => {
+    console.log(data)
+    reset();
+  };
+
+  return (
+    <Container className="my-5">
+      <h2>Add New Product</h2>
+      <Form onSubmit={handleSubmit(onSubmit)}>
+        <Form.Group className="mb-3">
+          <Form.Label>Name</Form.Label>
+          <Form.Control type="text" {...register("name")} isInvalid={!!errors.name} />
+          <Form.Control.Feedback type="invalid">
+            {errors.name?.message}
+          </Form.Control.Feedback>
+        </Form.Group>
+
+        <Form.Group className="mb-3">
+          <Form.Label>Category</Form.Label>
+          <Form.Control type="text" {...register("category")} isInvalid={!!errors.category} />
+          <Form.Control.Feedback type="invalid">
+            {errors.category?.message}
+          </Form.Control.Feedback>
+        </Form.Group>
+
+        <Form.Group className="mb-3">
+          <Form.Label>Description</Form.Label>
+          <Form.Control
+            as="textarea"
+            rows={3}
+            {...register("description")}
+            isInvalid={!!errors.description}
+          />
+          <Form.Control.Feedback type="invalid">
+            {errors.description?.message}
+          </Form.Control.Feedback>
+        </Form.Group>
+
+        <Form.Group className="mb-3">
+          <Form.Label>Price ($)</Form.Label>
+          <Form.Control type="number" step="0.01" {...register("price")} isInvalid={!!errors.price} />
+          <Form.Control.Feedback type="invalid">
+            {errors.price?.message}
+          </Form.Control.Feedback>
+        </Form.Group>
+
+        <h5>Stock</h5>
+        {fields.map((field, index) => (
+          <Row key={field.id} className="align-items-end mb-3">
+            <Col md={3}>
+              <Form.Label>Size</Form.Label>
+              <Form.Select {...register(`stock.${index}.size` as const)}>
+                {(["XS", "S", "M", "L", "XL", "XXL"] as const).map((s) => (
+                  <option key={s} value={s}>{s}</option>
+                ))}
+              </Form.Select>
+            </Col>
+            <Col md={4}>
+              <Form.Label>Variation</Form.Label>
+              <Form.Control type="text" {...register(`stock.${index}.variation` as const)} />
+            </Col>
+            <Col md={3}>
+              <Form.Label>Amount</Form.Label>
+              <Form.Control type="number" {...register(`stock.${index}.stockAmount` as const)} />
+            </Col>
+            <Col md={2}>
+              <Button variant="danger" onClick={() => remove(index)}>
+                Remove
+              </Button>
+            </Col>
+          </Row>
+        ))}
+        <Button variant="secondary" className="mb-3" onClick={() => append({ size: "M", variation: "", stockAmount: 0 })}>
+          Add Stock
+        </Button>
+
+        <Form.Group className="mb-3">
+          <Form.Label>Image</Form.Label>
+          <Form.Control type="file" accept="image/*" {...register("image")} isInvalid={!!errors.image} />
+          <Form.Control.Feedback type="invalid">
+            {errors.image?.message as string}
+          </Form.Control.Feedback>
+        </Form.Group>
+
+        <Button type="submit" disabled={isSubmitting} className="w-100">
+          {isSubmitting ? "Submitting..." : "Add Product"}
+        </Button>
+      </Form>
+    </Container>
+  );
 };
 
 export default AddItemPage;
