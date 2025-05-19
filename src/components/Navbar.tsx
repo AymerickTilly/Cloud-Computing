@@ -21,7 +21,7 @@ const NavigationBar = () => {
                 <Nav.Link as={Link} to="/profile">Profile</Nav.Link>
               )}
               {groups.includes("Admin") && (
-                <Nav.Link as={Link} to="/adminboard">Admin</Nav.Link>
+                <Nav.Link as={Link} to="/admin">Admin</Nav.Link>
               )}
             </Nav>
             <Nav>
