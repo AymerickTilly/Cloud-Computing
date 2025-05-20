@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { Container, Row, Col, Card } from 'react-bootstrap';
 
 import firstImage from '../assets/first-slide.jpg';
