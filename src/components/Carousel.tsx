@@ -19,13 +19,13 @@ const CarouselComponent = ({ carouselId }: CarouselComponentProps) => {
       {
         image: firstImage,
         alt: 'First slide',
-        title: 'First slide label',
+        title: 'COMFORT',
         text: 'Modern comfort in timeless style.',
       },
       {
         image: secondImage,
         alt: 'Second slide',
-        title: 'Second slide label',
+        title: 'COMFORT',
         text: 'Sustainability never looked so good.',
       },
     ];
@@ -34,13 +34,13 @@ const CarouselComponent = ({ carouselId }: CarouselComponentProps) => {
       {
         image: thirdImage,
         alt: 'Third slide',
-        title: 'RAIR Bold',
+        title: 'STYLE',
         text: 'Urban boldness in every stitch.',
       },
       {
         image: fourthImage,
         alt: 'Fourth slide',
-        title: 'RAIR Layers',
+        title: 'STYLE',
         text: 'Layer up with confidence.',
       },
     ];
@@ -49,13 +49,13 @@ const CarouselComponent = ({ carouselId }: CarouselComponentProps) => {
       {
         image: fifthImage,
         alt: 'Fifth slide',
-        title: 'RAIR Everywhere',
+        title: 'PURPOSE',
         text: 'From the studio to the streets.',
       },
       {
         image: sixthImage,
         alt: 'Sixth slide',
-        title: 'Timeless Fit',
+        title: 'PURPOSE',
         text: 'Never out of style.',
       },
     ];
@@ -68,7 +68,7 @@ const CarouselComponent = ({ carouselId }: CarouselComponentProps) => {
           <img className="d-block w-100" src={slide.image} alt={slide.alt} />
           <Carousel.Caption
             style={{
-              backgroundColor: 'rgba(0, 0, 0, 0.5)',
+              backgroundColor: 'rgba(0, 0, 0, 0.39)',
               padding: '1rem',
               borderRadius: '0',
               width: '100%',
