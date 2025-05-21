@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Container } from 'react-bootstrap';
 import { useAuthStore } from '../auth/AuthStore';
 import CarouselComponent from '../components/Carousel';
-
+import CarouselComponent2 from '../components/Carousel2';
 const rotatingMessages = [
   "Look good. Feel good. Do good.",
   "New styles drop every week.",
@@ -28,7 +28,7 @@ const Home = () => {
       <div
         className="text-white px-4 py-3"
         style={{
-          backgroundColor: '#000',
+          backgroundColor: 'red',
           borderRadius: '0',
           width: '100vw',
           textAlign: 'center',
@@ -37,6 +37,28 @@ const Home = () => {
         <div className="fs-5">
           {rotatingMessages[currentMessageIndex] || "Stay stylish with RAIR."}
         </div>
+      </div>
+
+      {/* 🔳 Welcome Card - directly below rotating text, no gap */}
+      <div
+        className="card text-black p-4"
+        style={{
+          backgroundColor: 'white',
+          borderRadius: '0',
+          marginTop: '0',
+          width: '100vw',
+          textAlign: 'center',
+          border: 'none',
+        }}
+      >
+        {user ? (
+          <>
+            <p className="fs-5 mb-2">Welcome, {email}!</p>
+            <p className="fs-5">Your groups: {groups.join(', ') || 'None'}</p>
+          </>
+        ) : (
+          <p className="fs-5">You are not logged in</p>
+        )}
       </div>
 
       {/* 🔳 Main content */}
@@ -51,7 +73,7 @@ const Home = () => {
         <h1 className="display-1 mb-4">RAIR Clothing.</h1> <br />
 
         <div className="w-100 px-4">
-          {/* Carousels */}
+          {/* 🔁 First set of carousels */}
           <div className="d-flex flex-row justify-content-center gap-4 flex-wrap">
             <div style={{ flex: '1 1 30%' }}>
               <CarouselComponent carouselId="one" />
@@ -64,27 +86,20 @@ const Home = () => {
             </div>
           </div>
 
-          {/* Welcome Card */}
-          <div className="mt-4">
+          {/* 🔁 Second set of carousels (below the first) */}
+          <div className="mt-4 d-flex justify-content-center">
             <div
-              className="card text-white p-4"
               style={{
-                backgroundColor: '#000',
-                borderRadius: '0',
-              }}
+              width: '100%',
+              height: '250px',
+              overflow: 'hidden', // 🚫 prevents overflow
+            }}
             >
-              {user ? (
-                <>
-                  <p className="fs-5 mb-2">Welcome, {email}!</p>
-                  <p className="fs-5">Your groups: {groups.join(', ') || 'None'}</p>
-                </>
-              ) : (
-                <p className="fs-5">You are not logged in</p>
-              )}
+              <CarouselComponent2 />
             </div>
           </div>
 
-          {/* Mission Statement */}
+          {/* 📣 Mission Statement */}
           <div className="mt-4">
             <div
               className="card p-4"
@@ -107,7 +122,7 @@ const Home = () => {
         </div>
       </Container>
 
-      {/* 🔳 Footer */}
+      {/* 🔻 Footer */}
       <footer
         className="text-white text-center py-4"
         style={{
