@@ -24,11 +24,11 @@ const Home = () => {
 
   return (
     <>
-      {/* 🔳 Top rotating message bar */}
+      {/* 🔳 Top rotating message bar 
       <div
         className="text-white px-4 py-3"
         style={{
-          backgroundColor: 'red',
+          backgroundColor: '#000',
           borderRadius: '0',
           width: '100vw',
           textAlign: 'center',
@@ -37,11 +37,11 @@ const Home = () => {
         <div className="fs-5">
           {rotatingMessages[currentMessageIndex] || "Stay stylish with RAIR."}
         </div>
-      </div>
+      </div> */}
 
       {/* 🔳 Welcome Card - directly below rotating text, no gap */}
       <div
-        className="card text-black p-4"
+        className="card text-black p-5"
         style={{
           backgroundColor: 'white',
           borderRadius: '0',
@@ -67,7 +67,7 @@ const Home = () => {
         className="d-flex flex-column align-items-center text-center pb-5"
         style={{
           fontFamily: 'Times New Roman, sans-serif',
-          paddingTop: '56px',
+          paddingTop: '20px',
         }}
       >
         <h1 className="display-1 mb-4">RAIR Clothing.</h1> <br />
@@ -108,6 +108,7 @@ const Home = () => {
                 borderRadius: '0',
                 fontFamily: 'Arial, sans-serif',
                 textAlign: 'justify',
+                border: 'none',
               }}
             >
               <div className="fs-5">
