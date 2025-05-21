@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Container, Form, Row, Col, Image, Dropdown, Button } from 'react-bootstrap';
+import { useState } from 'react';
+import { Container, Form, Row, Col, Image, Button } from 'react-bootstrap';
 import hoodieImage from '../assets/catalog-item-1.jpg';
 import tshirtImage from '../assets/catalog-item-2.jpg';
 const Checkout = () => {
@@ -30,6 +30,7 @@ const Checkout = () => {
     setSelectedBank(bank);
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const getItemTotal = (product: any) => {
     return (product.unitPrice * product.quantity).toFixed(2);
   };
