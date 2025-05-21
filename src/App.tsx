@@ -9,6 +9,8 @@ import { BrowserRouter, Route, Routes } from 'react-router';
 import RegisterForm from './pages/Register';
 import AdminPage from './pages/AdminPage';
 import Shop from './pages/Shop';
+import Cart from './pages/Cart';
+import Checkout from './pages/Checkout';
 import NavigationBar from './components/Navbar';
 import PrivateRoutes from './routes/PrivateRoutes';
 import ProtectedRoutes from './routes/ProtectedRoutes';
@@ -56,6 +58,8 @@ const App = () => {
             <Route element={<ProtectedRoutes />}>
               <Route path="/" element={<Home />} />
               <Route path="/shop" element={<Shop />} />
+              <Route path="/cart" element={<Cart />} />
+              <Route path="/Checkout" element={<Checkout />} />
 
             {/* // Admin Layout Route*/}
               <Route element={<PrivateRoutes allowedGroups={['Admin']} />}>

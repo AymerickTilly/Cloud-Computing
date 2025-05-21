@@ -2,6 +2,7 @@ import { Navbar, Nav, Container } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { useAuthStore } from '../auth/AuthStore';
 import LogoutLink from '../pages/Logout';
+//import { FaShoppingCart } from 'react-icons/fa';
 
 const NavigationBar = () => {
   const { groups } = useAuthStore();
@@ -18,12 +19,17 @@ const NavigationBar = () => {
             <Nav.Link as={Link} to="/shop" style={linkStyle}>Shop</Nav.Link>
             {groups.includes("Customer") && (
               <Nav.Link as={Link} to="/profile" style={linkStyle}>Profile</Nav.Link>
-            )}
+            )}            
             {groups.includes("Admin") && (
               <Nav.Link as={Link} to="/admin" style={linkStyle}>Admin</Nav.Link>
             )}
           </Nav>
-          <Nav>
+          <Nav className="align-items-center">
+            {groups.includes("Customer") && (
+              <Nav.Link as={Link} to="/cart" style={linkStyle}>
+                Cart
+              </Nav.Link>
+            )}
             <div style={linkStyle}>
               <LogoutLink />
             </div>
