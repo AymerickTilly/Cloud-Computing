@@ -23,9 +23,9 @@ const AddItemPage = () => {
   });
 
   const onSubmit = async (data: TAddItemSchema) => {
-    console.log(data)
-    reset();
-  };
+  console.log(data)
+  reset();
+};
 
   return (
     <Container className="my-5">
