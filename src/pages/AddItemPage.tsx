@@ -1,9 +1,13 @@
+import React from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { addItemSchema, TAddItemSchema } from "../schemas/TaddItemSchemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button, Col, Container, Form, Row } from "react-bootstrap";
+import { uploadImage } from "../api/uploadImage";
 
 const AddItemPage = () => {
+  const [uploadedImageUrl, setUploadedImageUrl] = React.useState<string | null>(null);
+
   const {
     register,
     handleSubmit,
@@ -22,10 +26,33 @@ const AddItemPage = () => {
     name: "stock",
   });
 
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const imageUrl = await uploadImage(file);
+
+    if (imageUrl) {
+      setUploadedImageUrl(imageUrl);
+      console.log("Image uploaded successfully:", imageUrl);
+    } else {
+      console.error("Image upload failed");
+    }
+  };
+
   const onSubmit = async (data: TAddItemSchema) => {
-  console.log(data)
-  reset();
-};
+    const productData = {
+      ...data,
+      imageUrl: uploadedImageUrl || "",
+    };
+
+    console.log("Submitting product data:", productData);
+
+    // TODO: call your product API here to save productData to DynamoDB
+
+    reset();
+    setUploadedImageUrl(null);
+  };
 
   return (
     <Container className="my-5">
@@ -34,17 +61,13 @@ const AddItemPage = () => {
         <Form.Group className="mb-3">
           <Form.Label>Name</Form.Label>
           <Form.Control type="text" {...register("name")} isInvalid={!!errors.name} />
-          <Form.Control.Feedback type="invalid">
-            {errors.name?.message}
-          </Form.Control.Feedback>
+          <Form.Control.Feedback type="invalid">{errors.name?.message}</Form.Control.Feedback>
         </Form.Group>
 
         <Form.Group className="mb-3">
           <Form.Label>Category</Form.Label>
           <Form.Control type="text" {...register("category")} isInvalid={!!errors.category} />
-          <Form.Control.Feedback type="invalid">
-            {errors.category?.message}
-          </Form.Control.Feedback>
+          <Form.Control.Feedback type="invalid">{errors.category?.message}</Form.Control.Feedback>
         </Form.Group>
 
         <Form.Group className="mb-3">
@@ -55,17 +78,13 @@ const AddItemPage = () => {
             {...register("description")}
             isInvalid={!!errors.description}
           />
-          <Form.Control.Feedback type="invalid">
-            {errors.description?.message}
-          </Form.Control.Feedback>
+          <Form.Control.Feedback type="invalid">{errors.description?.message}</Form.Control.Feedback>
         </Form.Group>
 
         <Form.Group className="mb-3">
           <Form.Label>Price ($)</Form.Label>
           <Form.Control type="number" step="0.01" {...register("price")} isInvalid={!!errors.price} />
-          <Form.Control.Feedback type="invalid">
-            {errors.price?.message}
-          </Form.Control.Feedback>
+          <Form.Control.Feedback type="invalid">{errors.price?.message}</Form.Control.Feedback>
         </Form.Group>
 
         <h5>Stock</h5>
@@ -75,7 +94,9 @@ const AddItemPage = () => {
               <Form.Label>Size</Form.Label>
               <Form.Select {...register(`stock.${index}.size` as const)}>
                 {(["XS", "S", "M", "L", "XL", "XXL"] as const).map((s) => (
-                  <option key={s} value={s}>{s}</option>
+                  <option key={s} value={s}>
+                    {s}
+                  </option>
                 ))}
               </Form.Select>
             </Col>
@@ -94,19 +115,34 @@ const AddItemPage = () => {
             </Col>
           </Row>
         ))}
-        <Button variant="secondary" className="mb-3" onClick={() => append({ size: "M", variation: "", stockAmount: 0 })}>
+        <Button
+          variant="secondary"
+          className="mb-3"
+          onClick={() => append({ size: "M", variation: "", stockAmount: 0 })}
+        >
           Add Stock
         </Button>
 
         <Form.Group className="mb-3">
           <Form.Label>Image</Form.Label>
-          <Form.Control type="file" accept="image/*" {...register("image")} isInvalid={!!errors.image} />
-          <Form.Control.Feedback type="invalid">
-            {errors.image?.message as string}
-          </Form.Control.Feedback>
+          <Form.Control
+            type="file"
+            accept="image/*"
+            {...register("image")}
+            onChange={handleImageChange}
+            isInvalid={!!errors.image}
+          />
+          <Form.Control.Feedback type="invalid">{errors.image?.message as string}</Form.Control.Feedback>
+          {uploadedImageUrl && (
+            <div className="mt-2">
+              <strong>Uploaded Image Preview:</strong>
+              <br />
+              <img src={uploadedImageUrl} alt="Uploaded" style={{ maxWidth: "200px", marginTop: "10px" }} />
+            </div>
+          )}
         </Form.Group>
 
-        <Button type="submit" disabled={isSubmitting} className="w-100">
+        <Button type="submit" className="w-100">
           {isSubmitting ? "Submitting..." : "Add Product"}
         </Button>
       </Form>
