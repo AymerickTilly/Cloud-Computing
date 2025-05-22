@@ -2,7 +2,7 @@ import { useForm } from "react-hook-form";
 import { askCodeResetSchema, TaskCodeResetSchema } from "../schemas/TaskCodeResetSchemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button, Col, Container, Form, Row } from "react-bootstrap";
-import { useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { useAuthStore } from "../auth/AuthStore";
 import handleResetPassword from "../auth/SendPwdVerificationCode";
 
@@ -58,7 +58,14 @@ const AskResetCode = () => {
               className="w-100"
             >
               {isSubmitting ? "Sending reset password information..." : "Reset password"}
-            </Button>
+              </Button>
+
+              <div className="text-center mt-3">
+                <small>
+                  Return to login page{" "}
+                  <Link to="/login"> here</Link>
+                </small>
+              </div>
           </Form>
         </Col>
       </Row>

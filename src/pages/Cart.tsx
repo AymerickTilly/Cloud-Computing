@@ -1,5 +1,4 @@
 // Cart.jsx
-import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Container, Row, Col, Form, Image, Button } from 'react-bootstrap';
 import { useAuthStore } from '../auth/AuthStore';
@@ -35,6 +34,7 @@ const cartItems: CartItem[] = [
 const Cart: React.FC = () => {
   const navigate = useNavigate();
   const { user, email, groups, loading } = useAuthStore();
+  console.log(user,email,groups)
 
   if (loading) return <p>Loading...</p>;
 

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Container, Form, Row, Col, Image, Dropdown, Button } from 'react-bootstrap';
 import hoodieImage from '../assets/hoodies/hoodie_1.png';
 import tshirtImage from '../assets/shirts/shirt_1.png';
+
 const Checkout = () => {
   const [address, setAddress] = useState('');
   const [selectedBank, setSelectedBank] = useState('');
@@ -30,6 +31,7 @@ const Checkout = () => {
     setSelectedBank(bank);
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const getItemTotal = (product: any) => {
     return (product.unitPrice * product.quantity).toFixed(2);
   };
