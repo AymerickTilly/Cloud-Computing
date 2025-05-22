@@ -1,5 +1,4 @@
 // Cart.jsx
-import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Container, Row, Col, Form, Image, Button } from 'react-bootstrap';
 import { useAuthStore } from '../auth/AuthStore';
