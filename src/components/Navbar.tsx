@@ -30,6 +30,11 @@ const NavigationBar = () => {
                 Cart
               </Nav.Link>
             )}
+            {groups.includes("Customer") && (
+              <Nav.Link as={Link} to="/listOrdersPage" style={linkStyle}>
+                Orders
+              </Nav.Link>
+            )}
             <div style={linkStyle}>
               <LogoutLink />
             </div>
