@@ -1,78 +1,114 @@
-import { Carousel } from 'react-bootstrap';
-import firstImage from '../assets/first-slide.jpg';
-import secondImage from '../assets/second-slide.jpg';
-/*import thirdImage from '../assets/third-slide.jpg';
-import fourthImage from '../assets/catalog-item-1.jpg';
-import fifthImage from '../assets/catalog-item-2.jpg';
-import sixthImage from '../assets/catalog-item-3.jpg'; */
-import './hover.css'; 
+import { Carousel, Modal, Button } from 'react-bootstrap';
+import { useState } from 'react';
+import './hover.css';
+
+import firstImage from '../assets/crew-neck/crew_neck_1.png';
+import secondImage from '../assets/crew-neck/crew_neck_2.png';
+import thirdImage from '../assets/crew-neck/crew_neck_3.png';
+import fourthImage from '../assets/hoodies/hoodie_1.png';
+import fifthImage from '../assets/hoodies/hoodie_2.png';
+import sixthImage from '../assets/hoodies/hoodie_3.png';
+import seventhImage from '../assets/knitwear/knit_1.png';
+import eighthImage from '../assets/knitwear/knit_2.png';
+import ninthImage from '../assets/knitwear/knit_3.png';
+import tenthImage from '../assets/shirts/shirt_1.png';
+import eleventhImage from '../assets/shirts/shirt_2.png';
+import twelfthImage from '../assets/shirts/shirt_3.png';
+
+type Slide = {
+  image: string;
+  alt: string;
+  title: string;
+  text: string;
+};
 
 type CarouselComponentProps = {
-  carouselId: 'one' | 'two' | 'three';
+  carouselId: 'one' | 'two' | 'three' | 'four';
 };
 
 const CarouselComponent = ({ carouselId }: CarouselComponentProps) => {
-  let slides = [];
+  const [showModal, setShowModal] = useState(false);
+  const [selectedSlide, setSelectedSlide] = useState<Slide | null>(null);
+
+  const handleSlideClick = (slide: Slide) => {
+    setSelectedSlide(slide);
+    setShowModal(true);
+  };
+
+  const handleClose = () => setShowModal(false);
+
+  let slides: Slide[] = [];
 
   if (carouselId === 'one') {
     slides = [
-      {
-        image: firstImage,
-        alt: 'First slide',
-        title: 'COMFORT',
-        text: 'Modern comfort in timeless style.',
-      },
-      {
-        image: secondImage,
-        alt: 'Second slide',
-        title: 'COMFORT',
-        text: 'Sustainability never looked so good.',
-      },
+      { image: firstImage, alt: 'First slide', title: 'Crew Necks', text: 'Modern comfort in timeless style.' },
+      { image: secondImage, alt: 'Second slide', title: 'Crew Necks', text: 'Sustainability never looked so good.' },
+      { image: thirdImage, alt: 'Third slide', title: 'Crew Necks', text: 'Sustainability never looked so good.' },
     ];
   } else if (carouselId === 'two') {
     slides = [
-      {
-        image: firstImage,
-        alt: 'Third slide',
-        title: 'STYLE',
-        text: 'Urban boldness in every stitch.',
-      },
-      {
-        image: secondImage,
-        alt: 'Fourth slide',
-        title: 'STYLE',
-        text: 'Layer up with confidence.',
-      },
+      { image: fourthImage, alt: 'Fourth slide', title: 'Zip-up Hoodies', text: 'Urban boldness in every stitch.' },
+      { image: fifthImage, alt: 'Fifth slide', title: 'Zip-up Hoodies', text: 'Layer up with confidence.' },
+      { image: sixthImage, alt: 'Sixth slide', title: 'Zip-up Hoodies', text: 'Layer up with confidence.' },
     ];
-  } else {
+  } else if (carouselId === 'three') {
     slides = [
-      {
-        image: firstImage,
-        alt: 'Fifth slide',
-        title: 'PURPOSE',
-        text: 'From the studio to the streets.',
-      },
-      {
-        image: secondImage,
-        alt: 'Sixth slide',
-        title: 'PURPOSE',
-        text: 'Never out of style.',
-      },
+      { image: seventhImage, alt: 'Seventh slide', title: 'Knitwear', text: 'From the studio to the streets.' },
+      { image: eighthImage, alt: 'Eighth slide', title: 'Knitwear', text: 'Never out of style.' },
+      { image: ninthImage, alt: 'Ninth slide', title: 'Knitwear', text: 'Never out of style.' },
+    ];
+  } else if (carouselId === 'four') {
+    slides = [
+      { image: tenthImage, alt: 'Tenth slide', title: 'T-Shirt', text: 'Fresh drops every week.' },
+      { image: eleventhImage, alt: 'Eleventh slide', title: 'T-Shirt', text: 'Discover your new favorite fit.' },
+      { image: twelfthImage, alt: 'Twelfth slide', title: 'T-Shirt', text: 'Never out of style.' },
     ];
   }
 
   return (
-    <Carousel className="mb-4" style={{ width: '100%' }}>
-      {slides.map((slide, index) => (
-        <Carousel.Item key={index} className="hover-caption-wrapper">
-          <img className="d-block w-100" src={slide.image} alt={slide.alt} />
-          <Carousel.Caption className="hover-caption">
-            <h3>{slide.title}</h3>
-            <p>{slide.text}</p>
-          </Carousel.Caption>
-        </Carousel.Item>
-      ))}
-    </Carousel>
+    <>
+      <Carousel className="mb-4 carousel-hover" style={{ width: '100%' }}>
+        {slides.map((slide, index) => (
+          <Carousel.Item
+            key={index}
+            className="hover-caption-wrapper"
+            onClick={() => handleSlideClick(slide)}
+            style={{ cursor: 'pointer' }}
+          >
+            <img className="d-block w-100" src={slide.image} alt={slide.alt} />
+            <Carousel.Caption className="hover-caption">
+              <h3>{slide.title}</h3>
+              <p>{slide.text}</p>
+            </Carousel.Caption>
+          </Carousel.Item>
+        ))}
+      </Carousel>
+
+      {/* Popup Modal */}
+      <Modal show={showModal} onHide={handleClose} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>{selectedSlide?.title}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {selectedSlide && (
+            <>
+              <img
+                src={selectedSlide.image}
+                alt={selectedSlide.alt}
+                style={{ width: '100%', borderRadius: '4px' }}
+              />
+              <p className="mt-3">{selectedSlide.text}</p>
+            </>
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleClose}>
+            Close
+          </Button>
+          {/* Add more buttons here if needed (e.g. Add to Cart) */}
+        </Modal.Footer>
+      </Modal>
+    </>
   );
 };
 
