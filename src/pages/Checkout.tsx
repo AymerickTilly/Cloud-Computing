@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Container, Form, Row, Col, Image, Dropdown, Button } from 'react-bootstrap';
+import { useState } from 'react';
+import { Container, Form, Row, Col, Image, Button } from 'react-bootstrap';
 import hoodieImage from '../assets/hoodies/hoodie_1.png';
 import tshirtImage from '../assets/shirts/shirt_1.png';
 const Checkout = () => {
