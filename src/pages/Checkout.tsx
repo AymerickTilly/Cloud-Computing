@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Container, Form, Row, Col, Image, Dropdown, Button } from 'react-bootstrap';
-import hoodieImage from '../assets/catalog-item-1.jpg';
-import tshirtImage from '../assets/catalog-item-2.jpg';
+import hoodieImage from '../assets/hoodies/hoodie_1.png';
+import tshirtImage from '../assets/shirts/shirt_1.png';
 const Checkout = () => {
   const [address, setAddress] = useState('');
   const [selectedBank, setSelectedBank] = useState('');
