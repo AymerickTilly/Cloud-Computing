@@ -11,7 +11,7 @@ const rotatingMessages = [
 
 const Home = () => {
   const { user, email, groups, loading } = useAuthStore();
-  const [currentMessageIndex, setCurrentMessageIndex] = useState(0);
+  const [, setCurrentMessageIndex] = useState(0);
 
   useEffect(() => {
     const interval = setInterval(() => {
