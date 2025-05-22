@@ -1,4 +1,4 @@
-import { getAccessToken } from "../auth/AuthStore"; // adjust path
+import { getIdToken } from "../auth/AuthStore"; // adjust path if necessary
 
 export const uploadImage = async (file: File): Promise<string | null> => {
   return new Promise((resolve) => {
@@ -16,10 +16,11 @@ export const uploadImage = async (file: File): Promise<string | null> => {
       const fileType = file.type;
 
       try {
-        // Get Cognito token
-        const accessToken = await getAccessToken();
-        if (!accessToken) {
-          console.error("No access token available");
+        // Get Cognito ID token
+        const idToken = await getIdToken();
+        console.log(idToken);
+        if (!idToken) {
+          console.error("No ID token available");
           resolve(null);
           return;
         }
@@ -30,7 +31,7 @@ export const uploadImage = async (file: File): Promise<string | null> => {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
-              "Authorization": `Bearer ${accessToken}`,
+              "Authorization": `Bearer ${idToken}`,
             },
             body: JSON.stringify({ fileData, fileType }),
           }
