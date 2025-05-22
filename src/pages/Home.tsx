@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Container } from 'react-bootstrap';
 import { useAuthStore } from '../auth/AuthStore';
 import CarouselComponent from '../components/Carousel';
-import CarouselComponent2 from '../components/Carousel2';
+
 const rotatingMessages = [
   "Look good. Feel good. Do good.",
   "New styles drop every week.",
@@ -24,24 +24,9 @@ const Home = () => {
 
   return (
     <>
-      {/* 🔳 Top rotating message bar */}
+      {/* 🔳 Welcome Card */}
       <div
-        className="text-white px-4 py-3"
-        style={{
-          backgroundColor: 'red',
-          borderRadius: '0',
-          width: '100vw',
-          textAlign: 'center',
-        }}
-      >
-        <div className="fs-5">
-          {rotatingMessages[currentMessageIndex] || "Stay stylish with RAIR."}
-        </div>
-      </div>
-
-      {/* 🔳 Welcome Card - directly below rotating text, no gap */}
-      <div
-        className="card text-black p-4"
+        className="card text-black p-5"
         style={{
           backgroundColor: 'white',
           borderRadius: '0',
@@ -64,59 +49,51 @@ const Home = () => {
       {/* 🔳 Main content */}
       <Container
         fluid
-        className="d-flex flex-column align-items-center text-center pb-5"
+        className="d-flex flex-column align-items-center text-center pb-4"
         style={{
           fontFamily: 'Times New Roman, sans-serif',
-          paddingTop: '56px',
+          paddingTop: '20px',
         }}
       >
         <h1 className="display-1 mb-4">RAIR Clothing.</h1> <br />
 
-        <div className="w-100 px-4">
-          {/* 🔁 First set of carousels */}
-          <div className="d-flex flex-row justify-content-center gap-4 flex-wrap">
-            <div style={{ flex: '1 1 30%' }}>
-              <CarouselComponent carouselId="one" />
-            </div>
-            <div style={{ flex: '1 1 30%' }}>
-              <CarouselComponent carouselId="two" />
-            </div>
-            <div style={{ flex: '1 1 30%' }}>
-              <CarouselComponent carouselId="three" />
-            </div>
+        {/* 🔁 2x2 carousel grid (optimized for 1024px width) */}
+        <div
+          className="d-flex flex-wrap justify-content-center gap-4"
+          style={{ maxWidth: '960px', margin: '0 auto' }} // center + cap total width
+        >
+          <div style={{ flex: '0 1 45%', maxWidth: '440px', height: '800px', overflow: 'hidden' }}>
+            <CarouselComponent carouselId="one" />
           </div>
+          <div style={{ flex: '0 1 45%', maxWidth: '440px', height: '800px', overflow: 'hidden' }}>
+            <CarouselComponent carouselId="two" />
+          </div>
+          <div style={{ flex: '0 1 45%', maxWidth: '440px', height: '800px', overflow: 'hidden' }}>
+            <CarouselComponent carouselId="three" />
+          </div>
+          <div style={{ flex: '0 1 45%', maxWidth: '440px', height: '800px', overflow: 'hidden' }}>
+            <CarouselComponent carouselId="four" />
+          </div>
+        </div>
 
-          {/* 🔁 Second set of carousels (below the first) */}
-          <div className="mt-4 d-flex justify-content-center">
-            <div
-              style={{
-              width: '100%',
-              height: '250px',
-              overflow: 'hidden', // 🚫 prevents overflow
+        {/* 📣 Mission Statement */}
+        <div className="mt-4">
+          <div
+            className="card p-4"
+            style={{
+              backgroundColor: '#f8f9fa',
+              borderRadius: '0',
+              fontFamily: 'Arial, sans-serif',
+              textAlign: 'justify',
+              border: 'none',
             }}
-            >
-              <CarouselComponent2 />
-            </div>
-          </div>
-
-          {/* 📣 Mission Statement */}
-          <div className="mt-4">
-            <div
-              className="card p-4"
-              style={{
-                backgroundColor: '#f8f9fa',
-                borderRadius: '0',
-                fontFamily: 'Arial, sans-serif',
-                textAlign: 'justify',
-              }}
-            >
-              <div className="fs-5">
-                At <strong>RAIR</strong>, quality meets comfort—without compromise. <br />
-                We craft modern, trend-driven outerwear using sustainable materials,
-                ensuring you look sharp and feel comfortable every day.
-                Ready to upgrade your wardrobe with style and purpose? <br /><br />
-                <strong>Place your order today.</strong>
-              </div>
+          >
+            <div className="fs-5">
+              At <strong>RAIR</strong>, quality meets comfort—without compromise. <br />
+              We craft modern, trend-driven outerwear using sustainable materials,
+              ensuring you look sharp and feel comfortable every day.
+              Ready to upgrade your wardrobe with style and purpose? <br /><br />
+              <strong>Place your order today.</strong>
             </div>
           </div>
         </div>

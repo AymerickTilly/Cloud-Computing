@@ -1,10 +1,10 @@
 
 import { Container, Row, Col, Card } from 'react-bootstrap';
 
-import firstImage from '../assets/first-slide.jpg';
-import fourthImage from '../assets/catalog-item-1.jpg';
-import fifthImage from '../assets/catalog-item-2.jpg';
-import sixthImage from '../assets/catalog-item-3.jpg';
+import firstImage from '../assets/crew-neck/crew_neck_1.png';
+import secondImage from '../assets/crew-neck/crew_neck_2.png';
+import thirdImage from '../assets/crew-neck/crew_neck_3.png';
+import fourthImage from '../assets/hoodies/hoodie_1.png';
 
 interface ShopItem {
   id: number;
@@ -13,9 +13,9 @@ interface ShopItem {
 }
 
 const items: ShopItem[] = [
-  { id: 1, title: "Shirt", image: fourthImage },
-  { id: 2, title: "Crew Necks", image: fifthImage },
-  { id: 3, title: "Knitwear", image: sixthImage },
+  { id: 1, title: "Shirt", image: thirdImage },
+  { id: 2, title: "Crew Necks", image: secondImage },
+  { id: 3, title: "Knitwear", image: fourthImage },
   { id: 4, title: "Hoodies", image: firstImage },
 ];
 

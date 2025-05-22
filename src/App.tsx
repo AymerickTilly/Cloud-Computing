@@ -59,6 +59,7 @@ const App = () => {
               <Route path="/" element={<Home />} />
               <Route path="/shop" element={<Shop />} />
               <Route path="/cart" element={<Cart />} />
+              <Route path="/listOrdersPage" element={<ListOrdersPage />} />
               <Route path="/Checkout" element={<Checkout />} />
 
             {/* // Admin Layout Route*/}

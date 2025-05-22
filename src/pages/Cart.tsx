@@ -1,10 +1,9 @@
 // Cart.jsx
-import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Container, Row, Col, Form, Image, Button } from 'react-bootstrap';
 import { useAuthStore } from '../auth/AuthStore';
-import hoodieImage from '../assets/catalog-item-1.jpg';
-import tshirtImage from '../assets/catalog-item-2.jpg';
+import hoodieImage from '../assets/hoodies/hoodie_1.png';
+import tshirtImage from '../assets/shirts/shirt_1.png';
 
 interface CartItem {
   id: number;
