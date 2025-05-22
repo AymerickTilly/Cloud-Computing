@@ -4,6 +4,8 @@ import { addItemSchema, TAddItemSchema } from "../schemas/TaddItemSchemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button, Col, Container, Form, Row } from "react-bootstrap";
 import { uploadImage } from "../api/uploadImage";
+import { addProduct } from "../api/addProduct";
+import { v4 as uuidv4 } from 'uuid';
 
 const AddItemPage = () => {
   const [uploadedImageUrl, setUploadedImageUrl] = React.useState<string | null>(null);
@@ -26,33 +28,42 @@ const AddItemPage = () => {
     name: "stock",
   });
 
-  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    const imageUrl = await uploadImage(file);
-
-    if (imageUrl) {
-      setUploadedImageUrl(imageUrl);
-      console.log("Image uploaded successfully:", imageUrl);
-    } else {
-      console.error("Image upload failed");
-    }
-  };
-
   const onSubmit = async (data: TAddItemSchema) => {
+
+  const productId = uuidv4();
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { image, ...rest } = data;
+
+  if (!data.image) {
+    alert("Please select an image.");
+    return;
+  }
+
+  try {
+    const imageUrl = await uploadImage(data.image[0]); // Upload image first
+
+    if (!imageUrl) {
+      alert("Image upload failed.");
+      reset();
+      return;
+    }
+
     const productData = {
-      ...data,
-      imageUrl: uploadedImageUrl || "",
+      productId,
+      ...rest,
+      imageUrl,
     };
 
-    console.log("Submitting product data:", productData);
-
-    // TODO: call your product API here to save productData to DynamoDB
-
+    await addProduct(productData); // Then POST to DynamoDB
+    // change here to show a message product added:
     reset();
     setUploadedImageUrl(null);
-  };
+  } catch (err) {
+    console.error("Error adding product:", err);
+    alert("Failed to add product.");
+    reset();
+  }
+};
 
   return (
     <Container className="my-5">
@@ -129,7 +140,6 @@ const AddItemPage = () => {
             type="file"
             accept="image/*"
             {...register("image")}
-            onChange={handleImageChange}
             isInvalid={!!errors.image}
           />
           <Form.Control.Feedback type="invalid">{errors.image?.message as string}</Form.Control.Feedback>
