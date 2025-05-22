@@ -21,3 +21,13 @@
 .hover-caption-wrapper:hover .hover-caption {
   opacity: 1;
 }
+
+.carousel-hover {
+  transition: transform 0.3s ease;
+}
+
+.carousel-hover:hover {
+  transform: scale(1.03);
+  z-index: 1;
+}
+
