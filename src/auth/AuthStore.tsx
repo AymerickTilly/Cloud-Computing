@@ -49,8 +49,11 @@ export const useAuthStore = create<AuthStore>((set) => ({
 export const initAuth = async () => {
   const { setLoading, setUser, setEmail, setGroups, resetAuth } = useAuthStore.getState();
   setLoading(true);
+
   try {
-    // Fetch session first to verify tokens
+    const user = await getCurrentUser();
+
+    // Only fetch session if user is authenticated
     const session = await fetchAuthSession();
     const idToken = session.tokens?.idToken?.payload;
 
@@ -58,7 +61,6 @@ export const initAuth = async () => {
       throw new Error('No ID token found');
     }
 
-    // Extract email and groups from ID token
     const rawEmail = idToken.email;
     const email = typeof rawEmail === 'string' ? rawEmail : null;
     const rawGroups = idToken['cognito:groups'];
@@ -66,23 +68,26 @@ export const initAuth = async () => {
       ? rawGroups
       : [];
 
-    // Get user data
-    const user = await getCurrentUser();
-
-    // Update store
     setUser(user);
     setEmail(email);
     setGroups(groups);
-  } catch (error) {
-    console.error('Error initializing auth:', error);
-    resetAuth(); // Clear state if no valid session/user
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (error: any) {
+    if (error.name === 'UserUnAuthenticatedException') {
+      // No user is signed in — this is not an error
+      console.log('User not signed in yet');
+    } else {
+      console.error('Error initializing auth:', error);
+    }
+    resetAuth();
   } finally {
     setLoading(false);
   }
 };
 
-export const getAccessToken = async () => {
+
+export const getIdToken = async () => {
   const session = await fetchAuthSession();
-  return session.tokens?.accessToken?.toString() || null;
+  return session.tokens?.idToken?.toString() || null;
 };
 
