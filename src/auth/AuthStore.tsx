@@ -23,7 +23,7 @@ type AuthStore = {
 
 export const useAuthStore = create<AuthStore>((set) => ({
   user: null,
-  loading: false,
+  loading: true,
   email: null,
   groups: [],
   pendingUsername: null,
