@@ -7,7 +7,6 @@ export const addItemSchema = z.object({
   price: z.coerce.number().min(0, "Price must be at least 0"),
   stock: z.array(z.object({
     size: z.enum(["XS", "S", "M", "L", "XL", "XXL"]),
-    variation: z.string().min(1, "Variation is required"),
     stockAmount: z.coerce.number().int().min(0, "Stock must be at least 0"),
   })),
   image: z
