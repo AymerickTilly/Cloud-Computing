@@ -1,15 +1,18 @@
-/* NavigationBar.css */
-
-.navbar-nav .nav-link {
-  font-size: 1.4rem;
-  color: black !important;
+.nav-link-custom {
+  color: #000;
   text-decoration: none;
-  transition: all 0.2s ease-in-out;
+  transition: box-shadow 0.2s ease;
+  padding: 0.5rem 1rem;
+  display: inline-block;
 }
 
-.navbar-nav .nav-link.active {
-  text-decoration: underline;
-  text-underline-offset: 4px;
-  color: black !important;
-  text-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+.nav-link-custom:hover {
+  text-decoration: none;
+  color: #000;
+}
+
+.nav-link-custom.active {
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  font-weight: 500;
+  border-radius: 6px;
 }
