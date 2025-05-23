@@ -2,6 +2,30 @@ import { useEffect, useState } from 'react';
 import { Container } from 'react-bootstrap';
 import { useAuthStore } from '../auth/AuthStore';
 import CarouselComponent from '../components/Carousel';
+import { loadProducts } from '../api/loadProducts';
+
+type Slide = {
+  image: string;
+  alt: string;
+  title: string;
+  text: string;
+  productId: string;
+};
+
+type Product = {
+  productId: string;
+  name: string;
+  category: string;
+  description: string;
+  price: number;
+  stock: {
+    size: string;
+    stockAmount: number;
+  }[];
+  imageUrl: string;
+  onSale?: boolean;
+  salePrice?: number;
+};
 
 const rotatingMessages = [
   "Look good. Feel good. Do good.",
@@ -11,8 +35,11 @@ const rotatingMessages = [
 
 const Home = () => {
   const { user, email, groups, loading } = useAuthStore();
+  const [products, setProducts] = useState<Product[]>([]);
   const [, setCurrentMessageIndex] = useState(0);
+  const [productsLoading, setProductsLoading] = useState(true);
 
+  // Rotating messages
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentMessageIndex((prev) => (prev + 1) % rotatingMessages.length);
@@ -20,7 +47,25 @@ const Home = () => {
     return () => clearInterval(interval);
   }, []);
 
-  if (loading) return <p>Loading...</p>;
+  // Fetch products
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const allProducts = await loadProducts();
+        setProducts(allProducts);
+        setProductsLoading(false);
+      } catch (error) {
+        console.error('Error fetching products:', error);
+        setProductsLoading(false);
+      }
+    };
+    fetchProducts();
+  }, []);
+
+  if (loading || productsLoading) return <p>Loading...</p>;
+
+  // Get unique categories
+  const categories = Array.from(new Set(products.map((p) => p.category)));
 
   return (
     <>
@@ -57,23 +102,30 @@ const Home = () => {
       >
         <h1 className="display-1 mb-4">RAIR Clothing.</h1> <br />
 
-        {/* 🔁 2x2 carousel grid (optimized for 1024px width) */}
+        {/* 🔁 2x2 carousel grid */}
         <div
           className="d-flex flex-wrap justify-content-center gap-4"
-          style={{ maxWidth: '960px', margin: '0 auto' }} // center + cap total width
+          style={{ maxWidth: '960px', margin: '0 auto' }}
         >
-          <div style={{ flex: '0 1 45%', maxWidth: '440px', height: '800px', overflow: 'hidden' }}>
-            <CarouselComponent carouselId="one" />
-          </div>
-          <div style={{ flex: '0 1 45%', maxWidth: '440px', height: '800px', overflow: 'hidden' }}>
-            <CarouselComponent carouselId="two" />
-          </div>
-          <div style={{ flex: '0 1 45%', maxWidth: '440px', height: '800px', overflow: 'hidden' }}>
-            <CarouselComponent carouselId="three" />
-          </div>
-          <div style={{ flex: '0 1 45%', maxWidth: '440px', height: '800px', overflow: 'hidden' }}>
-            <CarouselComponent carouselId="four" />
-          </div>
+          {categories.map((category) => {
+            const categoryProducts = products.filter((p) => p.category === category);
+            const slides: Slide[] = categoryProducts.map((p) => ({
+              image: p.imageUrl,
+              alt: `${p.name} image`,
+              title: p.name,           // Maps to product.name
+              text: p.description,    // Maps to product.description
+              productId: p.productId,
+            }));
+
+            return (
+              <div
+                key={category}
+                style={{ flex: '0 1 45%', maxWidth: '440px', height: '800px', overflow: 'hidden' }}
+              >
+                <CarouselComponent slides={slides} />
+              </div>
+            );
+          })}
         </div>
 
         {/* 📣 Mission Statement */}
