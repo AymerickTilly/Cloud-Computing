@@ -6,9 +6,17 @@ import { Button, Col, Container, Form, Row } from "react-bootstrap";
 import { uploadImage } from "../api/uploadImage";
 import { addProduct } from "../api/addProduct";
 import { v4 as uuidv4 } from 'uuid';
+import { useNavigate } from "react-router";
 
 const AddItemPage = () => {
   const [uploadedImageUrl, setUploadedImageUrl] = React.useState<string | null>(null);
+  const navigate = useNavigate();
+
+  const backToAdminBoard = () => {
+    reset();
+    setUploadedImageUrl(null);
+    navigate("/admin");
+  }
 
   const {
     register,
@@ -19,7 +27,7 @@ const AddItemPage = () => {
   } = useForm<TAddItemSchema>({
     resolver: zodResolver(addItemSchema),
     defaultValues: {
-      stock: [{ size: "M", variation: "default", stockAmount: 0 }],
+      stock: [{ size: "M",  stockAmount: 0 }],
     },
   });
 
@@ -111,10 +119,6 @@ const AddItemPage = () => {
                 ))}
               </Form.Select>
             </Col>
-            <Col md={4}>
-              <Form.Label>Variation</Form.Label>
-              <Form.Control type="text" {...register(`stock.${index}.variation` as const)} />
-            </Col>
             <Col md={3}>
               <Form.Label>Amount</Form.Label>
               <Form.Control type="number" {...register(`stock.${index}.stockAmount` as const)} />
@@ -129,7 +133,7 @@ const AddItemPage = () => {
         <Button
           variant="secondary"
           className="mb-3"
-          onClick={() => append({ size: "M", variation: "", stockAmount: 0 })}
+          onClick={() => append({ size: "M", stockAmount: 0 })}
         >
           Add Stock
         </Button>
@@ -155,6 +159,15 @@ const AddItemPage = () => {
         <Button type="submit" className="w-100">
           {isSubmitting ? "Submitting..." : "Add Product"}
         </Button>
+
+        <Button
+          variant="danger"
+          className="mt-3 w-100"
+          onClick={backToAdminBoard}
+          >
+          Cancel & Return to Admin
+        </Button>
+
       </Form>
     </Container>
   );
