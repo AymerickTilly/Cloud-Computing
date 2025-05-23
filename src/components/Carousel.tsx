@@ -37,6 +37,18 @@ const CarouselComponent = ({ carouselId }: CarouselComponentProps) => {
 
   const handleClose = () => setShowModal(false);
 
+  const handleAddToCart = (slide: Slide | null) => {
+    if (!slide) return;
+    console.log('Added to cart:', slide);
+    setShowModal(false);
+  };
+
+  const handleUpdateProduct = (slide: Slide | null) => {
+    if (!slide) return;
+    console.log('Update product clicked:', slide);
+    // Add update logic here
+  };
+
   let slides: Slide[] = [];
 
   if (carouselId === 'one') {
@@ -85,7 +97,7 @@ const CarouselComponent = ({ carouselId }: CarouselComponentProps) => {
       </Carousel>
 
       {/* Popup Modal */}
-      <Modal show={showModal} onHide={handleClose} centered>
+      <Modal show={showModal} onHide={handleClose} centered dialogClassName="custom-modal">
         <Modal.Header closeButton>
           <Modal.Title>{selectedSlide?.title}</Modal.Title>
         </Modal.Header>
@@ -95,7 +107,12 @@ const CarouselComponent = ({ carouselId }: CarouselComponentProps) => {
               <img
                 src={selectedSlide.image}
                 alt={selectedSlide.alt}
-                style={{ width: '100%', borderRadius: '4px' }}
+                style={{
+                  width: '100%',
+                  maxHeight: '300px',
+                  objectFit: 'contain',
+                  borderRadius: '4px'
+                }}
               />
               <p className="mt-3">{selectedSlide.text}</p>
             </>
@@ -105,7 +122,12 @@ const CarouselComponent = ({ carouselId }: CarouselComponentProps) => {
           <Button variant="secondary" onClick={handleClose}>
             Close
           </Button>
-          {/* Add more buttons here if needed (e.g. Add to Cart) */}
+          <Button variant="primary" onClick={() => handleAddToCart(selectedSlide)}>
+            Add to Cart
+          </Button>
+          <Button variant="danger" onClick={() => handleUpdateProduct(selectedSlide)}>
+            Update Product
+          </Button>
         </Modal.Footer>
       </Modal>
     </>

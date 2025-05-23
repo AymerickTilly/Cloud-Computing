@@ -31,3 +31,7 @@
   z-index: 1;
 }
 
+.custom-modal .modal-dialog {
+  max-width: 50% !important;
+  margin: auto;
+}
