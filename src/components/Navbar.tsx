@@ -1,41 +1,47 @@
 import { Navbar, Nav, Container } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import { useAuthStore } from '../auth/AuthStore';
 import LogoutLink from '../pages/Logout';
-//import { FaShoppingCart } from 'react-icons/fa';
+import './Navbar.css';
 
 const NavigationBar = () => {
   const { groups } = useAuthStore();
 
-  const linkStyle = { fontSize: '1.4rem' }; // Adjust size as needed, e.g. 1.1rem or 16px
-
   return (
     <Navbar bg="light" variant="light" expand="lg" className="shadow-sm">
       <Container>
-        <Navbar.Brand as={Link} to="/" style={linkStyle}>Home</Navbar.Brand>
+        <Navbar.Brand as={NavLink} to="/" className="nav-link-custom">
+          Home
+        </Navbar.Brand>
         <Navbar.Toggle aria-controls="navbar-nav" />
         <Navbar.Collapse id="navbar-nav">
           <Nav className="me-auto">
-            <Nav.Link as={Link} to="/shop" style={linkStyle}>Shop</Nav.Link>
+            <Nav.Link as={NavLink} to="/shop" className="nav-link-custom">
+              Shop
+            </Nav.Link>
             {groups.includes("Customer") && (
-              <Nav.Link as={Link} to="/profile" style={linkStyle}>Profile</Nav.Link>
-            )}            
+              <Nav.Link as={NavLink} to="/profile" className="nav-link-custom">
+                Profile
+              </Nav.Link>
+            )}
             {groups.includes("Admin") && (
-              <Nav.Link as={Link} to="/admin" style={linkStyle}>Admin</Nav.Link>
+              <Nav.Link as={NavLink} to="/admin" className="nav-link-custom">
+                Admin
+              </Nav.Link>
             )}
           </Nav>
           <Nav className="align-items-center">
             {groups.includes("Customer") && (
-              <Nav.Link as={Link} to="/cart" style={linkStyle}>
+              <Nav.Link as={NavLink} to="/cart" className="nav-link-custom">
                 Cart
               </Nav.Link>
             )}
             {groups.includes("Customer") && (
-              <Nav.Link as={Link} to="/listOrdersPage" style={linkStyle}>
+              <Nav.Link as={NavLink} to="/listOrdersPage" className="nav-link-custom">
                 Orders
               </Nav.Link>
             )}
-            <div style={linkStyle}>
+            <div className="nav-link-custom">
               <LogoutLink />
             </div>
           </Nav>

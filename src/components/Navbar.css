@@ -1,0 +1,15 @@
+/* NavigationBar.css */
+
+.navbar-nav .nav-link {
+  font-size: 1.4rem;
+  color: black !important;
+  text-decoration: none;
+  transition: all 0.2s ease-in-out;
+}
+
+.navbar-nav .nav-link.active {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  color: black !important;
+  text-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+}
