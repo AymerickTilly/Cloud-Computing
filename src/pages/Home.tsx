@@ -54,8 +54,7 @@ const Home = () => {
   const categories = Array.from(new Set(products.map((p) => p.category)));
 
   return (
-    <>
-      {/* 🔳 Main content */}
+    <div style={{ backgroundColor: '#c4bfb7', minHeight: '100vh' }}>
       <Container
         fluid
         className="d-flex flex-column align-items-center text-center pb-4"
@@ -76,15 +75,20 @@ const Home = () => {
             const slides: Slide[] = categoryProducts.map((p) => ({
               image: p.imageUrl,
               alt: `${p.name} image`,
-              title: p.name,           // Maps to product.name
-              text: p.description,    // Maps to product.description
+              title: p.name,
+              text: p.description,
               productId: p.productId,
             }));
 
             return (
               <div
                 key={category}
-                style={{ flex: '0 1 45%', maxWidth: '440px', height: '800px', overflow: 'hidden' }}
+                style={{
+                  flex: '0 1 45%',
+                  maxWidth: '440px',
+                  height: '800px',
+                  overflow: 'hidden',
+                }}
               >
                 <CarouselComponent slides={slides} />
               </div>
@@ -115,8 +119,8 @@ const Home = () => {
         </div>
       </Container>
 
-      <Footer/>
-    </>
+      <Footer />
+    </div>
   );
 };
 

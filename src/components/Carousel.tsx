@@ -48,7 +48,7 @@ const CarouselComponent = ({ slides }: CarouselComponentProps) => {
             <img className="d-block w-100" src={slide.image} alt={slide.alt} />
             <Carousel.Caption className="hover-caption">
               <h3>{slide.title}</h3>
-              <p>{slide.text}</p> {/* Added back to show product.description */}
+               {/* Added back to show product.description */}
             </Carousel.Caption>
           </Carousel.Item>
         ))}

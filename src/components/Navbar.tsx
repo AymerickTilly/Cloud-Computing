@@ -10,26 +10,30 @@ const NavigationBar = () => {
   return (
     <Navbar bg="light" variant="light" expand="lg" className="shadow-sm">
       <Container>
-        <Navbar.Brand as={NavLink} to="/" className="nav-link-custom">
+        <Nav.Link as={NavLink} to="/" className="nav-link-custom">
           Home
-        </Navbar.Brand>
+        </Nav.Link>
+
         <Navbar.Toggle aria-controls="navbar-nav" />
         <Navbar.Collapse id="navbar-nav">
           <Nav className="me-auto">
             <Nav.Link as={NavLink} to="/shop" className="nav-link-custom">
               Shop
             </Nav.Link>
+
             {groups.includes("Customer") && (
               <Nav.Link as={NavLink} to="/profile" className="nav-link-custom">
                 Profile
               </Nav.Link>
             )}
+
             {groups.includes("Admin") && (
               <Nav.Link as={NavLink} to="/admin" className="nav-link-custom">
                 Admin
               </Nav.Link>
             )}
           </Nav>
+
           <Nav className="align-items-center">
             {groups.includes("Customer") && (
               <Nav.Link as={NavLink} to="/cart" className="nav-link-custom">
@@ -41,9 +45,9 @@ const NavigationBar = () => {
                 Orders
               </Nav.Link>
             )}
-            <div className="nav-link-custom">
+            <Nav.Link as="span" className="nav-link-custom">
               <LogoutLink />
-            </div>
+            </Nav.Link>
           </Nav>
         </Navbar.Collapse>
       </Container>
