@@ -1,6 +1,7 @@
 import { Carousel, Modal, Button } from 'react-bootstrap';
 import { useState } from 'react';
-import './hover.css';
+import './Hover.css';
+
 
 import firstImage from '../assets/crew-neck/crew_neck_1.png';
 import secondImage from '../assets/crew-neck/crew_neck_2.png';
