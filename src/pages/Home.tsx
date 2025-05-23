@@ -3,6 +3,7 @@ import { Container } from 'react-bootstrap';
 import { useAuthStore } from '../auth/AuthStore';
 import CarouselComponent from '../components/Carousel';
 import { loadProducts } from '../api/loadProducts';
+import Footer from '../components/Footer';
 
 type Slide = {
   image: string;
@@ -27,25 +28,10 @@ type Product = {
   salePrice?: number;
 };
 
-const rotatingMessages = [
-  "Look good. Feel good. Do good.",
-  "New styles drop every week.",
-  "New items on sale!"
-];
-
 const Home = () => {
-  const { user, email, groups, loading } = useAuthStore();
+  const { loading } = useAuthStore();
   const [products, setProducts] = useState<Product[]>([]);
-  const [, setCurrentMessageIndex] = useState(0);
   const [productsLoading, setProductsLoading] = useState(true);
-
-  // Rotating messages
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentMessageIndex((prev) => (prev + 1) % rotatingMessages.length);
-    }, 10000);
-    return () => clearInterval(interval);
-  }, []);
 
   // Fetch products
   useEffect(() => {
@@ -69,28 +55,6 @@ const Home = () => {
 
   return (
     <>
-      {/* 🔳 Welcome Card */}
-      <div
-        className="card text-black p-5"
-        style={{
-          backgroundColor: 'white',
-          borderRadius: '0',
-          marginTop: '0',
-          width: '100vw',
-          textAlign: 'center',
-          border: 'none',
-        }}
-      >
-        {user ? (
-          <>
-            <p className="fs-5 mb-2">Welcome, {email}!</p>
-            <p className="fs-5">Your groups: {groups.join(', ') || 'None'}</p>
-          </>
-        ) : (
-          <p className="fs-5">You are not logged in</p>
-        )}
-      </div>
-
       {/* 🔳 Main content */}
       <Container
         fluid
@@ -151,19 +115,7 @@ const Home = () => {
         </div>
       </Container>
 
-      {/* 🔻 Footer */}
-      <footer
-        className="text-white text-center py-4"
-        style={{
-          backgroundColor: '#000',
-          width: '100vw',
-        }}
-      >
-        <div className="container">
-          <p className="mb-1">© 2025 RAIR Clothing</p>
-          <p className="mb-0">Privacy · Terms · Contact</p>
-        </div>
-      </footer>
+      <Footer/>
     </>
   );
 };
