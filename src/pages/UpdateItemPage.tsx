@@ -1,27 +1,16 @@
 import { useEffect, useState } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
-import { Modal, Button, Container, Row, Col, Card, Form } from "react-bootstrap";
+import { Modal, Button, Container, Row, Col, Form } from "react-bootstrap";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { updateItemSchema, TUpdateItemSchema } from "../schemas/TupdateItemSchemas";
 import { loadProducts } from "../api/loadProducts";
 import { uploadImage } from "../api/uploadImage";
-import { updateAnItem } from "../api/updateAnItem";
+import { updateAnItem } from "../api/updateProduct";
 import { deleteImage } from "../api/deleteImage";
+import { deleteProduct } from "../api/deleteProduct";
+import ProductCard from "../components/ProductCard";
+import { Product } from "../types/Product";
 
-type Product = {
-  productId: string;
-  name: string;
-  category: string;
-  description: string;
-  price: number;
-  stock: {
-    size: string;
-    stockAmount: number;
-  }[];
-  imageUrl: string;
-  onSale?: boolean;
-  salePrice?: number;
-};
 
 const UpdateItemPage = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -138,41 +127,49 @@ const UpdateItemPage = () => {
     }
   };
 
+  const handleDelete = async (productId: string) => {
+  const confirmed = window.confirm("Are you sure you want to delete this product?");
+  if (!confirmed) return;
+
+  try {
+    const productToDelete = products.find((p) => p.productId === productId);
+    if (!productToDelete) {
+      alert("Product not found.");
+      return;
+    }
+
+    // Optionally delete the image
+    if (productToDelete.imageUrl) {
+      await deleteImage(productToDelete.imageUrl);
+    }
+
+    const response = await deleteProduct(productToDelete.productId); // now guaranteed to be string
+
+    if (!response) {
+      throw new Error("Failed to delete product.");
+    }
+    console.log("Product deleted properly")
+    alert("Product deleted successfully.");
+    await loadAndSetProducts(); // Refresh list
+  } catch (err) {
+    alert(`Error deleting product: ${err instanceof Error ? err.message : "Unknown error"}`);
+  }
+};
+
+
+
   return (
-    <Container className="py-4">
+      <Container className="py-4">
       <Row className="g-4">
-        {products.map((product) => (
-          <Col key={product.productId} xs={12} sm={6} md={4}>
-            <Card className="h-100 shadow-sm">
-              <Row className="g-0 h-100">
-                <Col xs={5} className="d-flex align-items-center justify-content-center p-2">
-                  <Card.Img
-                    src={product.imageUrl}
-                    alt={product.name}
-                    style={{ maxHeight: "200px", objectFit: "contain" }}
-                  />
-                </Col>
-                <Col xs={7}>
-                  <Card.Body>
-                    <Card.Title className="fw-bold fs-5 mb-2">{product.name}</Card.Title>
-                    <Card.Text>{product.description}</Card.Text>
-                    <Card.Text>Price: ${product.price}</Card.Text>
-                    {product.onSale && (
-                      <Card.Text className="text-danger">Sale Price: ${product.salePrice}</Card.Text>
-                    )}
-                    <Button
-                      variant="outline-primary"
-                      size="sm"
-                      onClick={() => openModal(product)}
-                    >
-                      Update Product Details
-                    </Button>
-                  </Card.Body>
-                </Col>
-              </Row>
-            </Card>
-          </Col>
-        ))}
+      {products.map((product) => (
+      <Col key={product.productId} xs={12} sm={6} md={4}>
+        <ProductCard
+        product={product}
+        openModal={openModal}
+        handleDelete={handleDelete}
+      />
+      </Col>
+      ))}
       </Row>
 
       {/* Modal */}
