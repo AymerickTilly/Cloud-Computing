@@ -1,15 +1,7 @@
-
 import { getIdToken } from "../auth/AuthStore";
+import { Cart } from "../types/Cart";
 
-export async function addToCart(cartData: {
-  userId: string;
-  productId: string;
-  name: string;
-  price: number;
-  size: string;
-  quantity: number;
-  imageUrl: string;
-}): Promise<any | null> {
+export async function addToCart(cartData: Cart): Promise<{ message: string; item: Cart } | null> {
   try {
     const idToken = await getIdToken();
     console.log("ID Token from addToCart:", idToken ? "Valid token" : "No token");
@@ -26,7 +18,7 @@ export async function addToCart(cartData: {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${idToken.trim()}`,
+          Authorization: `Bearer ${idToken}`,
         },
         body: JSON.stringify(cartData),
       }
