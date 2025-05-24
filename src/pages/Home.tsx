@@ -4,29 +4,10 @@ import { useAuthStore } from '../auth/AuthStore';
 import CarouselComponent from '../components/Carousel';
 import { loadProducts } from '../api/loadProducts';
 import Footer from '../components/Footer';
+import { Product } from '../types/Product';
+import { Slide } from '../types/Slide';
 
-type Slide = {
-  image: string;
-  alt: string;
-  title: string;
-  text: string;
-  productId: string;
-};
 
-type Product = {
-  productId: string;
-  name: string;
-  category: string;
-  description: string;
-  price: number;
-  stock: {
-    size: string;
-    stockAmount: number;
-  }[];
-  imageUrl: string;
-  onSale?: boolean;
-  salePrice?: number;
-};
 
 const Home = () => {
   const { loading } = useAuthStore();
