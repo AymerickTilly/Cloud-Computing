@@ -8,7 +8,7 @@ import { useAuthStore } from '../auth/AuthStore';
 
 const RegisterForm = () => {
   const navigate = useNavigate();
-  const { resetAuth, setLoading, setPendingUsername } = useAuthStore();
+  const { resetAuth, setLoading, setPendingUsername, setAddress } = useAuthStore();
 
   const {
     register,
@@ -29,7 +29,9 @@ const RegisterForm = () => {
       console.log('SignUp Result:', result);
       if (!result?.isSignUpComplete) {
         setPendingUsername(data.username);
+        setAddress(data.address);
         console.log('Set pendingUsername:', useAuthStore.getState().pendingUsername);
+        console.log('Set address:', useAuthStore.getState().address);
         console.log('Navigate to confirmRegister');
         // Delay navigation to ensure state update
         setTimeout(() => navigate('/confirmRegister'), 0);
@@ -61,6 +63,19 @@ const RegisterForm = () => {
               />
               <Form.Control.Feedback type="invalid">
                 {errors.username?.message}
+              </Form.Control.Feedback>
+            </Form.Group>
+
+            <Form.Group className="mb-3" controlId="formAddress">
+              <Form.Label>Your delivry address</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="Enter your delivry address"
+                {...register('address')}
+                isInvalid={!!errors.address}
+              />
+              <Form.Control.Feedback type="invalid">
+                {errors.address?.message}
               </Form.Control.Feedback>
             </Form.Group>
 

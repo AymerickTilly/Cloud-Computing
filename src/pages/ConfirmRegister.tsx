@@ -6,11 +6,12 @@ import { useNavigate } from "react-router-dom";
 import { handleSignUpConfirmation } from "../auth/ConfirmSignUp";
 import { signIn } from "../auth/SignIn";
 import { useAuthStore } from "../auth/AuthStore";
+import { addUser } from "../api/addUser";
+import { User } from "../types/User";
 
 const ConfirmRegisterForm = () => {
-
   const navigate = useNavigate();
-  const { resetAuth, setLoading } = useAuthStore();
+  const { resetAuth, setLoading, address } = useAuthStore();
 
   const {
     register,
@@ -21,36 +22,47 @@ const ConfirmRegisterForm = () => {
     resolver: zodResolver(signUpConfirmSchema),
   });
 
-  // Rest of the component
   const onSubmit = async (data: TsignUpConfirmSchema) => {
     try {
+      // Confirm sign-up
       await handleSignUpConfirmation({
         username: data.email,
         confirmationCode: data.code,
       });
-  
-      // Proceed to sign in after confirmation
+
       try {
-        await signIn({ username: data.email, password: data.password });
+        // Sign in and get the Cognito sub
+        const { sub } = await signIn({ username: data.email, password: data.password });
         useAuthStore.getState().setPendingUsername(null);
+
+        // Use the Cognito sub as userId
+        const newUser: User = {
+          userId: sub, // Use sub (UUID) instead of username
+          username: data.email,
+          address: address || "",
+        };
+
+        const response = await addUser(newUser);
+
+        if (!response) {
+          throw new Error("Failed to add user.");
+        }
+
         navigate('/');
-      } catch (err: unknown) {
+      } catch (err) {
         console.error("Sign-in error after confirmation:", err);
-        console.log("There was an error with your sign up confirmation")
-        resetAuth()
-        setLoading(false)
+        resetAuth();
+        setLoading(false);
         navigate('/login');
       }
     } catch (err) {
       console.error("Confirmation error:", err);
-      console.log("Another error")
-      resetAuth()
-      setLoading(false)
+      resetAuth();
+      setLoading(false);
     }
-  
+
     reset();
   };
-  
 
   return (
     <Container className="d-flex align-items-center justify-content-center min-vh-100">
@@ -58,20 +70,18 @@ const ConfirmRegisterForm = () => {
         <Col xs={12} sm={10} md={6} lg={4}>
           <h3 className="text-center mb-4">Confirmation Code</h3>
           <Form onSubmit={handleSubmit(onSubmit)}>
-
-          <Form.Group className="mb-3" controlId="formEmail">
-            <Form.Label>Email</Form.Label>
-            <Form.Control
+            <Form.Group className="mb-3" controlId="formEmail">
+              <Form.Label>Email</Form.Label>
+              <Form.Control
                 type="email"
                 placeholder="Enter your email"
                 {...register("email")}
                 isInvalid={!!errors.email}
-            />
-            <Form.Control.Feedback type="invalid">
-              {errors.email?.message}
-            </Form.Control.Feedback>
-          </Form.Group>
-
+              />
+              <Form.Control.Feedback type="invalid">
+                {errors.email?.message}
+              </Form.Control.Feedback>
+            </Form.Group>
 
             <Form.Group className="mb-3" controlId="formPassword">
               <Form.Label>Password</Form.Label>
@@ -85,7 +95,6 @@ const ConfirmRegisterForm = () => {
                 {errors.password?.message}
               </Form.Control.Feedback>
             </Form.Group>
-
 
             <Form.Group className="mb-3" controlId="formCode">
               <Form.Label>Confirmation Code</Form.Label>
