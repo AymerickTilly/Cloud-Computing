@@ -11,18 +11,14 @@ export async function deleteImage(imageUrl: string): Promise<boolean> {
       return false;
     }
 
-    // Extract the image key from the imageUrl (e.g., the S3 key)
-    const imageKey = imageUrl.split(".com/")[1]; // Adjust based on your S3 URL structure
-
+    const encodedUrl = encodeURIComponent(imageUrl);
     const res = await fetch(
-      "https://yv9hvyex77.execute-api.ap-southeast-2.amazonaws.com/dev/image",
+      `https://yv9hvyex77.execute-api.ap-southeast-2.amazonaws.com/dev/image?imageUrl=${encodedUrl}`,
       {
         method: "DELETE",
         headers: {
-          "Content-Type": "application/json",
           Authorization: `Bearer ${idToken}`,
         },
-        body: JSON.stringify({ imageKey }),
       }
     );
 
