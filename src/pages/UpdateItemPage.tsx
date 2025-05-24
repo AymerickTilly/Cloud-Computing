@@ -5,7 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { updateItemSchema, TUpdateItemSchema } from "../schemas/TupdateItemSchemas";
 import { loadProducts } from "../api/loadProducts";
 import { uploadImage } from "../api/uploadImage";
-import { updateAnItem } from "../api/updateAnItem"; // ✅ import your API
+import { updateAnItem } from "../api/updateAnItem";
 import { deleteImage } from "../api/deleteImage";
 
 type Product = {
@@ -48,22 +48,30 @@ const UpdateItemPage = () => {
     name: "stock",
   });
 
+  const loadAndSetProducts = async () => {
+    try {
+      const loaded = await loadProducts();
+      setProducts(loaded);
+    } catch (err) {
+      console.error("Failed to load products:", err);
+    }
+  };
+
   useEffect(() => {
-    loadProducts().then(setProducts).catch(console.error);
+    loadAndSetProducts();
   }, []);
 
   const openModal = (product: Product) => {
     setSelectedProduct(product);
     setUploadedImageUrl(product.imageUrl || null);
 
-    // Pre-fill form values
     setValue("name", product.name);
     setValue("category", product.category);
     setValue("description", product.description);
     setValue("price", product.price);
     setValue(
-        "stock",
-        product.stock.map((item) => ({
+      "stock",
+      product.stock.map((item) => ({
         size: item.size as "XS" | "S" | "M" | "L" | "XL" | "XXL",
         stockAmount: item.stockAmount,
       }))
@@ -79,7 +87,6 @@ const UpdateItemPage = () => {
 
   const onSubmit = async (data: TUpdateItemSchema) => {
     if (!selectedProduct) {
-      console.error("No product selected in onSubmit");
       alert("No product selected.");
       return;
     }
@@ -89,62 +96,44 @@ const UpdateItemPage = () => {
     try {
       let imageUrl = uploadedImageUrl;
 
-      // Check if a new image is uploaded
       if (data.image?.[0]) {
-        console.log("Attempting to delete old image:", selectedProduct.imageUrl);
-        // Delete the old image if it exists
         if (selectedProduct.imageUrl) {
           const deleted = await deleteImage(selectedProduct.imageUrl);
           if (!deleted) {
-            console.error("Failed to delete old image:", selectedProduct.imageUrl);
             alert("Failed to delete old image.");
             return;
           }
-          console.log("Old image deleted successfully");
         }
 
-        // Upload the new image
-        console.log("Uploading new image...");
         imageUrl = await uploadImage(data.image[0]);
         if (!imageUrl) {
-          console.error("Image upload failed");
           alert("Image upload failed.");
           return;
         }
-        console.log("New image uploaded, URL:", imageUrl);
       } else if (!imageUrl) {
-        console.error("No image provided and no existing imageUrl");
         alert("Please upload an image or keep the existing one.");
         return;
       }
 
-      // Prepare product data, excluding the image field
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { image, ...rest } = data;
 
       const updatedProduct = {
-        productId, // Preserve the original productId
+        productId,
         ...rest,
         imageUrl,
-        onSale: selectedProduct.onSale, // Preserve onSale status
-        salePrice: selectedProduct.salePrice, // Preserve salePrice
       };
 
-      console.log("Updating product with data:", updatedProduct);
-
-      // Update the product in DynamoDB
       const result = await updateAnItem(updatedProduct);
       if (!result) {
-        console.error("UpdateAnItem returned null");
         alert("Failed to update product.");
         return;
       }
 
-      console.log("Product updated successfully:", result);
       alert("Product updated successfully!");
       handleClose();
+      await loadAndSetProducts(); // ✅ reload products after update
     } catch (err) {
-      console.error("Error updating product in onSubmit:", err);
       alert(`Failed to update product: ${err instanceof Error ? err.message : "Unknown error"}`);
     }
   };
@@ -157,14 +146,20 @@ const UpdateItemPage = () => {
             <Card className="h-100 shadow-sm">
               <Row className="g-0 h-100">
                 <Col xs={5} className="d-flex align-items-center justify-content-center p-2">
-                  <Card.Img src={product.imageUrl} alt={product.name} style={{ maxHeight: "200px", objectFit: "contain" }} />
+                  <Card.Img
+                    src={product.imageUrl}
+                    alt={product.name}
+                    style={{ maxHeight: "200px", objectFit: "contain" }}
+                  />
                 </Col>
                 <Col xs={7}>
                   <Card.Body>
                     <Card.Title className="fw-bold fs-5 mb-2">{product.name}</Card.Title>
                     <Card.Text>{product.description}</Card.Text>
                     <Card.Text>Price: ${product.price}</Card.Text>
-                    {product.onSale && <Card.Text className="text-danger">Sale Price: ${product.salePrice}</Card.Text>}
+                    {product.onSale && (
+                      <Card.Text className="text-danger">Sale Price: ${product.salePrice}</Card.Text>
+                    )}
                     <Button
                       variant="outline-primary"
                       size="sm"
@@ -180,7 +175,7 @@ const UpdateItemPage = () => {
         ))}
       </Row>
 
-      {/* Update Modal */}
+      {/* Modal */}
       <Modal show={showModal} onHide={handleClose} size="lg" centered>
         <Modal.Header closeButton>
           <Modal.Title>Update Product</Modal.Title>
