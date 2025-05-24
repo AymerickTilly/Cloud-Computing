@@ -178,7 +178,19 @@ const UpdateItemPage = () => {
           <Modal.Title>Update Product</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <Form onSubmit={handleSubmit(onSubmit)}>
+          <Form onSubmit={handleSubmit(onSubmit)}>      
+            <Form.Group className="mb-3 mt-3">
+              {uploadedImageUrl && (
+                <div className="mt-3 d-flex justify-content-center">
+                  <img
+                    src={uploadedImageUrl}
+                    alt="Uploaded"
+                    style={{ maxWidth: "150px", maxHeight: "200px", objectFit: "contain" }}
+                  />
+                </div>
+              )}              
+              <Form.Control type="file" accept="image/*" {...register("image")} />
+            </Form.Group>
             <Form.Group className="mb-3">
               <Form.Label>Name</Form.Label>
               <Form.Control type="text" {...register("name")} isInvalid={!!errors.name} />
@@ -218,26 +230,15 @@ const UpdateItemPage = () => {
                   <Button variant="danger" onClick={() => remove(index)}>Remove</Button>
                 </Col>
               </Row>
-            ))}
-            <Button variant="secondary" onClick={() => append({ size: "M", stockAmount: 0 })}>
-              Add Stock
-            </Button>
-
-            <Form.Group className="mb-3 mt-3">
-              <Form.Label>Image</Form.Label>
-              <Form.Control type="file" accept="image/*" {...register("image")} />
-              {uploadedImageUrl && (
-                <div className="mt-3 d-flex justify-content-center">
-                  <img
-                    src={uploadedImageUrl}
-                    alt="Uploaded"
-                    style={{ maxWidth: "150px", maxHeight: "200px", objectFit: "contain" }}
-                  />
-                </div>
-              )}
-            </Form.Group>
-
-            <Button type="submit" className="w-100">
+            ))}<div className="mb-3">
+                <Button
+                  variant="secondary"
+                  onClick={() => append({ size: "M", stockAmount: 0 })}
+                  className="me-2">
+                  Add Stock
+                </Button>
+              </div>
+            <Button type="submit" className="w-100 ">
               {isSubmitting ? "Updating..." : "Update Product"}
             </Button>
           </Form>
