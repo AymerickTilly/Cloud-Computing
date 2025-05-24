@@ -66,7 +66,7 @@ const RegisterForm = () => {
               </Form.Control.Feedback>
             </Form.Group>
 
-            <Form.Group className="mb-3" controlId="formUsername">
+            <Form.Group className="mb-3" controlId="formAddress">
               <Form.Label>Your delivry address</Form.Label>
               <Form.Control
                 type="text"
