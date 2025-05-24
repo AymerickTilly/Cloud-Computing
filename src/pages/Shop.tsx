@@ -15,17 +15,17 @@ const Shop = () => {
   }, []);
 
   return (
-    <Container className="py-4">
-      {/* Add d-flex and align-items-stretch to Row */}
-      <Row className="g-4 d-flex align-items-stretch">
-        {products.map((product) => (
-          <Col key={product.productId} xs={12} sm={6} md={4} className="d-flex h-100">
-            {/* Add d-flex h-100 to Col */}
-            <ProductCardShop product={product} />
-          </Col>
-        ))}
-      </Row>
-    </Container>
+    <div style={{ backgroundColor: "#423c37", minHeight: "100vh" }}>
+      <Container className="py-4">
+        <Row className="g-4 d-flex align-items-stretch">
+          {products.map((product) => (
+            <Col key={product.productId} xs={12} sm={6} md={4} className="d-flex h-100">
+              <ProductCardShop product={product} />
+            </Col>
+          ))}
+        </Row>
+      </Container>
+    </div>
   );
 };
 

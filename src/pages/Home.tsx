@@ -54,7 +54,14 @@ const Home = () => {
   const categories = Array.from(new Set(products.map((p) => p.category)));
 
   return (
-    <div style={{ backgroundColor: '#c4bfb7', minHeight: '100vh' }}>
+      <div
+        style={{
+          backgroundColor: '#909EAE',
+          minHeight: '100vh',
+          overflowX: 'hidden',
+        }}
+      >
+
       <Container
         fluid
         className="d-flex flex-column align-items-center text-center pb-4"
@@ -63,13 +70,18 @@ const Home = () => {
           paddingTop: '20px',
         }}
       >
-        <h1 className="display-1 mb-4">RAIR Clothing.</h1> <br />
+        <h1 className="display-1 mb-4 text-white">RAIR Clothing.</h1>
 
         {/* 🔁 2x2 carousel grid */}
         <div
-          className="d-flex flex-wrap justify-content-center gap-4"
-          style={{ maxWidth: '960px', margin: '0 auto' }}
-        >
+            className="d-flex flex-wrap justify-content-center"
+            style={{
+              maxWidth: '960px',
+              margin: '0 auto',
+              rowGap: '0.01rem',   // Reduce vertical space
+              columnGap: '2rem' // Keep horizontal space if needed
+            }}
+          >
           {categories.map((category) => {
             const categoryProducts = products.filter((p) => p.category === category);
             const slides: Slide[] = categoryProducts.map((p) => ({

@@ -37,7 +37,14 @@ const CarouselComponent = ({ slides }: CarouselComponentProps) => {
 
   return (
     <>
-      <Carousel className="mb-4 carousel-hover">
+      <Carousel
+          className="mb-4 carousel-hover"
+          style={{
+            transform: 'scale(0.8)',
+            transformOrigin: 'top center',
+          }}
+        >
+
         {slides.map((slide) => (
           <Carousel.Item
             key={slide.productId}
