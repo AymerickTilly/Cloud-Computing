@@ -6,11 +6,14 @@ import { useNavigate } from "react-router-dom";
 import { handleSignUpConfirmation } from "../auth/ConfirmSignUp";
 import { signIn } from "../auth/SignIn";
 import { useAuthStore } from "../auth/AuthStore";
+import { addUser } from "../api/addUser";
+import { v4 as uuidv4 } from 'uuid';
+import { User } from "../types/User";
 
 const ConfirmRegisterForm = () => {
 
   const navigate = useNavigate();
-  const { resetAuth, setLoading } = useAuthStore();
+  const { resetAuth, setLoading, address } = useAuthStore();
 
   const {
     register,
@@ -21,35 +24,47 @@ const ConfirmRegisterForm = () => {
     resolver: zodResolver(signUpConfirmSchema),
   });
 
+  const userId = uuidv4();
+
   // Rest of the component
   const onSubmit = async (data: TsignUpConfirmSchema) => {
+  try {
+    await handleSignUpConfirmation({
+      username: data.email,
+      confirmationCode: data.code,
+    });
+
     try {
-      await handleSignUpConfirmation({
+      await signIn({ username: data.email, password: data.password });
+      useAuthStore.getState().setPendingUsername(null);
+
+      const newUser: User = {
+        userId,
         username: data.email,
-        confirmationCode: data.code,
-      });
-  
-      // Proceed to sign in after confirmation
-      try {
-        await signIn({ username: data.email, password: data.password });
-        useAuthStore.getState().setPendingUsername(null);
-        navigate('/');
-      } catch (err: unknown) {
-        console.error("Sign-in error after confirmation:", err);
-        console.log("There was an error with your sign up confirmation")
-        resetAuth()
-        setLoading(false)
-        navigate('/login');
+        address: address || "",
+      };
+
+      const response = await addUser(newUser);
+
+      if (!response) {
+        throw new Error("Failed to add user.");
       }
+
+      navigate('/');
     } catch (err) {
-      console.error("Confirmation error:", err);
-      console.log("Another error")
-      resetAuth()
-      setLoading(false)
+      console.error("Sign-in error after confirmation:", err);
+      resetAuth();
+      setLoading(false);
+      navigate('/login');
     }
-  
-    reset();
-  };
+  } catch (err) {
+    console.error("Confirmation error:", err);
+    resetAuth();
+    setLoading(false);
+  }
+
+  reset();
+};
   
 
   return (
