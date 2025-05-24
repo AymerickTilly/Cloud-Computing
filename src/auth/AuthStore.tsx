@@ -11,6 +11,7 @@ type AuthStore = {
   groups: string[];
   pendingUsername: string | null;
   passwordReset: boolean | null;
+  address: string | null;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   setUser: (user: any | null) => void;
   setLoading: (loading: boolean) => void;
@@ -18,6 +19,7 @@ type AuthStore = {
   setGroups: (groups: string[]) => void;
   setPendingUsername: (username: string | null) => void;
   setPasswordReset: (passwordReset: boolean | null) => void;
+  setAddress: (address: string | null) => void;
   resetAuth: () => void;
 };
 
@@ -28,12 +30,14 @@ export const useAuthStore = create<AuthStore>((set) => ({
   groups: [],
   pendingUsername: null,
   passwordReset: null,
+  address:null,
   setUser: (user) => set({ user }),
   setLoading: (loading) => set({ loading }),
   setEmail: (email) => set({ email }),
   setGroups: (groups) => set({ groups }),
   setPendingUsername: (username) => set({ pendingUsername: username }),
   setPasswordReset: (passwordReset) => set({ passwordReset }),
+  setAddress: (address) => set({ address }),
   resetAuth: () =>
     set({
       user: null,
