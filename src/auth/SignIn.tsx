@@ -33,16 +33,21 @@ export async function signIn({ username, password }: SignInParameters) {
       ? rawGroups
       : [];
 
+    // Extract sub
+    const sub = idToken.sub;
+    if (!sub) {
+      throw new Error('No sub found in ID token');
+    }
+
     // Update store
     setUser(user);
     setEmail(email);
     setGroups(groups);
 
-    return user;
+    return { user, sub }; // Return both user and sub
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     console.error('Error signing in:', error);
-    // Provide user-friendly error message
     throw new Error(error.message || 'Failed to sign in. Please check your credentials.');
   } finally {
     setLoading(false);
