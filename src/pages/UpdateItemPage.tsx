@@ -5,7 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { updateItemSchema, TUpdateItemSchema } from "../schemas/TupdateItemSchemas";
 import { loadProducts } from "../api/loadProducts";
 import { uploadImage } from "../api/uploadImage";
-import { updateAnItem } from "../api/updateProduct";
+import { updateProduct } from "../api/updateProduct";
 import { deleteImage } from "../api/deleteImage";
 import { deleteProduct } from "../api/deleteProduct";
 import ProductCard from "../components/ProductCard";
@@ -113,7 +113,7 @@ const UpdateItemPage = () => {
         imageUrl,
       };
 
-      const result = await updateAnItem(updatedProduct);
+      const result = await updateProduct(updatedProduct);
       if (!result) {
         alert("Failed to update product.");
         return;
