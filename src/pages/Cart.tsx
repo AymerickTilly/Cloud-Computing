@@ -5,31 +5,9 @@ import { useAuthStore } from '../auth/AuthStore';
 import { loadCartsByID } from '../api/loadCarts';
 import { Cart } from '../types/Cart';
 import { deleteCart } from '../api/deleteCart';
-import { loadProducts } from "../api/loadProducts";
-import { Product } from "../types/Product";
 
-<<<<<<< HEAD
 const CartPage: React.FC = () => {
-=======
-interface CartItem {
-  id: number;
-  name: string;
-  image: string;
-  quantity: number;
-  size: string[];
-  unitPrice: number;
-  userId: string;
-  cartId: string;
-}
-
-type StockItem = {
-  size: string;
-  stockAmount: number;
-};
-const Cart: React.FC = () => {
->>>>>>> dd05d287ccf2f7e282fe1f187781b18e834ac7c9
   const navigate = useNavigate();
-  const [products, setProducts] = useState<Product[]>([]);
   const { user, loading } = useAuthStore();
   const [carts, setCarts] = useState<Cart[]>([]);
   const [selectedIds, setSelectedIds] = useState<string[]>([]); // use cartId for unique IDs
@@ -41,12 +19,6 @@ const Cart: React.FC = () => {
       .then(setCarts)
       .catch((err) => console.error("Failed to load cart:", err));
   }, [user]);
-  
-  useEffect(() => {
-      loadProducts()
-        .then(setProducts)
-        .catch(console.error);
-    }, []);
 
   const toggleAll = () => {
     setSelectedIds(selectedIds.length === carts.length ? [] : carts.map(c => c.cartId));
@@ -63,39 +35,9 @@ const Cart: React.FC = () => {
       prev.map(c => c.cartId === cartId ? { ...c, quantity } : c)
     );
   };
-  const handleCheckout = () => {
-    const issues: string[] = [];
 
-<<<<<<< HEAD
   const handleDelete = async (cart: Cart) => {
     const success = await deleteCart(cart);
-=======
-    items
-      .filter(item => selectedItems.includes(item.id))
-      .forEach(item => {
-        const product = products.find((p: Product) => p.name === item.name);
-        if (!product) return;
-
-        const stockEntry = product?.stock.find((s: StockItem) => s.size === item.size[0]);
-        const availableStock = stockEntry?.stockAmount ?? 0;
-
-        if (item.quantity > availableStock) {
-          issues.push(
-            `Only ${availableStock} left for "${item.name}" size "${item.size[0]}".`
-          );
-        }
-      });
-
-    if (issues.length > 0) {
-      alert(issues.join('\n'));
-      return;
-    }
-
-    navigate('/checkout');
-  };
-  const handleDeleteItemFromCart = async (userId: string, cartId: string, id: number) => {
-    const success = await deleteCart({ userId, cartId } as BackendCart);
->>>>>>> dd05d287ccf2f7e282fe1f187781b18e834ac7c9
     if (success) {
       setCarts(prev => prev.filter(c => c.cartId !== cart.cartId));
       setSelectedIds(prev => prev.filter(id => id !== cart.cartId));
@@ -194,7 +136,6 @@ const Cart: React.FC = () => {
               <Button
                 variant="success"
                 size="lg"
-<<<<<<< HEAD
                 onClick={() =>
                 navigate('/checkout', {
                 state: {
@@ -212,10 +153,6 @@ const Cart: React.FC = () => {
                 })
                 }
                 disabled={selectedIds.length === 0}
-=======
-                onClick={handleCheckout}
-                disabled={selectedItems.length === 0}
->>>>>>> dd05d287ccf2f7e282fe1f187781b18e834ac7c9
               >
                 Proceed to Checkout
               </Button>
