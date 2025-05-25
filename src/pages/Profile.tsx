@@ -17,7 +17,7 @@ export default function ProfilePage() {
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [editMode, setEditMode] = useState(false);
 
-  const { userId } = useAuthStore();
+  const { userId, user} = useAuthStore();
 
   const {
     register,
@@ -30,14 +30,14 @@ export default function ProfilePage() {
 
   useEffect(() => {
     async function fetchProfile() {
-      const data = await loadUserById(userId);
+      const data = await loadUserById(user.username);
       if (data) {
         setProfile(data);
         setValue("address", data.address);
       }
     }
     fetchProfile();
-  }, [setValue, userId]);
+  }, [setValue, user.username]);
 
   const onSubmit = async (formData: TprofileUpdateFormData) => {
     console.log("Form Data Submitted:", formData);
