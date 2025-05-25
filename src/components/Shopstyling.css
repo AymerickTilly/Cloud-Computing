@@ -1,0 +1,81 @@
+/* src/styles/Shopstyling.css */
+
+/* Page background and base text color */
+body, .shop-container {
+  background-color: #7794b4; /* Main page background (a cool blue) */
+  color: #ffffff;            /* Default text color (white) for contrast */
+}
+
+/* Search bar styling */
+.shop-container .form-control {
+  background-color: #ffffff; /* White background for input field */
+  color: #000000;            /* Black text inside input */
+  border: 1px solid #ffffff; /* White border for clean look */
+}
+.shop-container .form-control::placeholder {
+  color: #565151; /* Dim gray placeholder text */
+}
+
+/* Product card base styling */
+.shop-card {
+  background-color: #0000003d; /* Purple-toned card background */
+  color: #ffffff;            /* White text for contrast */
+  border: none;
+  transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth hover effect */
+}
+
+/* Card hover effect */
+.shop-card:hover {
+  transform: translateY(-4px); /* Slight lift on hover */
+  box-shadow: 
+    24px 24px 24px rgba(0, 0, 0, 0.4),   /* Deep shadow to bottom-right */
+    0 0 10px rgba(255, 100, 100, 0.3);   /* Soft red glow around the card */
+}
+
+/* Size stock tags (S, M, L) */
+.shop-stock-tag {
+  background-color: #ffffff; /* Transparent grayish background */
+  color: #ffffff;              /* Black text by default for readability */
+  border: 1px solid #000000;   /* Black border to make it pop */
+  transition: all 0.2s ease;
+  cursor: pointer;             /* Cursor changes to pointer on hover */
+}
+
+
+/* Size tag hover effect */
+.shop-stock-tag:hover {
+  background-color: #f9f9f9f9; /* Turns background fully black on hover */
+  color: #ffffff;            /* Changes text to white for contrast */
+  transform: scale(1.05);    /* Slight zoom for feedback */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3); /* Light shadow on hover */
+}
+
+/* Modal styling (product popup) */
+.modal-content {
+  background-color: #ffffff; /* Bold red background for modal */
+  color: #000000;            /* Light text for readability */
+}
+
+/* Primary action button (Add to Cart) */
+.shop-button {
+  background-color: #000000;       /* Deep blue/purple button */
+  color: rgb(255, 255, 255);           /* Bright red text */
+  border: none;
+  transition: background-color 0.3s ease;
+}
+
+.shop-button:hover {
+  background-color: #bdbdc4;       /* Soft gray on hover */
+}
+
+/* Secondary button (Close modal) */
+.shop-secondary-button {
+  background-color: #000000;       /* Bright red background */
+  color: #fff;                     /* White text */
+  border: none;
+  transition: background-color 0.3s ease;
+}
+
+.shop-secondary-button:hover {
+  background-color: #ededed;       /* Pale gray background on hover */
+}
