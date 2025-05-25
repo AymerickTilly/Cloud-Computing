@@ -6,6 +6,7 @@ import { fetchAuthSession, getCurrentUser } from 'aws-amplify/auth';
 type AuthStore = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   user: any | null;
+  userId: string;
   loading: boolean;
   email: string | null;
   groups: string[];
@@ -20,11 +21,13 @@ type AuthStore = {
   setPendingUsername: (username: string | null) => void;
   setPasswordReset: (passwordReset: boolean | null) => void;
   setAddress: (address: string | null) => void;
+  setUserId: (userId: string) => void;
   resetAuth: () => void;
 };
 
 export const useAuthStore = create<AuthStore>((set) => ({
   user: null,
+  userId: "",
   loading: true,
   email: null,
   groups: [],
@@ -38,9 +41,11 @@ export const useAuthStore = create<AuthStore>((set) => ({
   setPendingUsername: (username) => set({ pendingUsername: username }),
   setPasswordReset: (passwordReset) => set({ passwordReset }),
   setAddress: (address) => set({ address }),
+  setUserId: (userId) => set({ userId }),
   resetAuth: () =>
     set({
       user: null,
+      userId: "",
       email: null,
       groups: [],
       pendingUsername: null,
