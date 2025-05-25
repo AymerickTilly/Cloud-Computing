@@ -1,0 +1,54 @@
+/* Default home background color */
+.home-page {
+  background-color: #30669b; /* background colour */
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+.carousel-card-wrapper {
+  flex: 0 1 45%;
+  max-width: 700px;
+  height: 500px;
+  padding: 30px;
+  box-sizing: border-box;
+}
+
+.carousel-card {
+  background-color: #00000020; /*carousel background colour*/
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(22, 2, 2, 0.429); /*additional shadow settings*/
+  padding: 10px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.carousel-card {
+  height: 100%;
+}
+
+.carousel-card .carousel,
+.carousel-card .carousel-item {
+  height: 100%;
+}
+
+.carousel-card img {
+  height: 100%;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.mission-statement-card {
+  background-color: #00000000; /*Background colour for mission statement*/
+  color: #ffffff; /*text colour*/
+  max-width: 700px;
+  margin: 0 auto 30px auto;
+  padding: 20px 30px;
+  border-radius: 12px;
+  font-family: Arial, sans-serif;
+  font-size: 1.3rem;
+  text-align: center;
+  text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.6); /*text shadow settings*/
+}
+
