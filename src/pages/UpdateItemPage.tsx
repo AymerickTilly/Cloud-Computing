@@ -17,6 +17,7 @@ const UpdateItemPage = () => {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [uploadedImageUrl, setUploadedImageUrl] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
 
   const {
     register,
@@ -32,11 +33,15 @@ const UpdateItemPage = () => {
     },
   });
 
+  const filteredProducts = products.filter((product) =>
+  product.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   const { fields, append, remove } = useFieldArray({
     control,
     name: "stock",
   });
-
+  
   const loadAndSetProducts = async () => {
     try {
       const loaded = await loadProducts();
@@ -160,8 +165,16 @@ const UpdateItemPage = () => {
 
   return (
       <Container className="py-4">
+        <Form className="mb-4">
+          <Form.Control
+            type="text"
+            placeholder="Search products by name..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </Form>
       <Row className="g-4">
-      {products.map((product) => (
+      {filteredProducts.map((product) => (
       <Col key={product.productId} xs={12} sm={6} md={4}>
         <ProductCard
         product={product}
