@@ -1,48 +1,82 @@
-import { useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import { Modal, Container, Form, Row, Col, Image, Button } from 'react-bootstrap';
-import hoodieImage from '../assets/hoodies/hoodie_1.png';
-import tshirtImage from '../assets/shirts/shirt_1.png';
-import { useNavigate } from 'react-router-dom';
+import { useAuthStore } from '../auth/AuthStore';
+import { loadUserById } from '../api/loadUser';
+import { User } from '../types/User';
+
+
+interface ProductItem {
+  id: string;
+  name: string;
+  image: string;
+  quantity: number;
+  size: string[];
+  unitPrice: number;
+}
+
+interface CheckoutLocationState {
+  selectedItems: ProductItem[];
+}
 
 const Checkout = () => {
-  const [address, setAddress] = useState('');
   const navigate = useNavigate();
+  const { state } = useLocation() as { state: CheckoutLocationState | undefined };
+  const [address, setAddress] = useState('');
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [selectedBank, setSelectedBank] = useState('');
-  const [products] = useState([
-    {
-      id: 1,
-      name: 'Product 1',
-      image: hoodieImage,
-      size: 'M',
-      unitPrice: 29.99,
-      quantity: 2,
-    },
-    {
-      id: 2,
-      name: 'Product 2',
-      image: tshirtImage,
-      size: 'L',
-      unitPrice: 49.99,
-      quantity: 1,
-    },
-  ]);
+  const [products, setProducts] = useState<ProductItem[]>([]);
 
-  const handleBankSelect = (bank: string) => {
-    setSelectedBank(bank);
-  };
-
+  // Get user from auth store
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const getItemTotal = (product: any) => {
+  const user = useAuthStore((state: { user: any; }) => state.user);
+
+  useEffect(() => {
+    if (!state || !Array.isArray(state.selectedItems)) {
+      navigate('/cart');
+      return;
+    }
+
+    const sanitized = state.selectedItems.filter(
+      (item): item is ProductItem =>
+        typeof item.unitPrice === 'number' &&
+        typeof item.quantity === 'number' &&
+        typeof item.name === 'string'
+    );
+
+    setProducts(sanitized);
+  }, [state, navigate]);
+
+  useEffect(() => {
+    async function fetchUser() {
+      if (user?.username) {
+        try {
+          const loadedUser = (await loadUserById(user.username)) as User | null;
+          if (loadedUser?.address) {
+            setAddress(loadedUser.address);
+          }
+        } catch (err) {
+          console.error('Failed to load user data:', err);
+        }
+      }
+    }
+    fetchUser();
+  }, [user]);
+
+  const getItemTotal = (product: ProductItem) => {
+    if (typeof product.unitPrice !== 'number' || typeof product.quantity !== 'number') return '0.00';
     return (product.unitPrice * product.quantity).toFixed(2);
   };
 
   const getGrandTotal = () => {
     return products
-      .reduce((sum, product) => sum + product.unitPrice * product.quantity, 0)
+      .reduce((sum, product) => {
+        if (typeof product.unitPrice !== 'number' || typeof product.quantity !== 'number') return sum;
+        return sum + product.unitPrice * product.quantity;
+      }, 0)
       .toFixed(2);
   };
-  
+
   const confirmPayment = () => {
     alert(`Proceeding to payment\nAddress: ${address}\nBank: ${selectedBank}\nTotal: $${getGrandTotal()}`);
     setShowConfirmModal(false);
@@ -62,13 +96,9 @@ const Checkout = () => {
       <h2 className="mb-4 text-center">Checkout</h2>
       <Form.Group className="mb-4" controlId="checkoutAddress">
         <h4 className="mb-3">Shipping Address</h4>
-        <Form.Control
-          as="textarea"
-          rows={2}
-          placeholder="Enter your delivery address"
-          value={address}
-          onChange={(e) => setAddress(e.target.value)}
-        />
+        <div className="form-control" style={{ minHeight: '3rem' }}>
+          {address || 'No address provided'}
+        </div>
       </Form.Group>
 
       <h4 className="mb-3">Your Items</h4>
@@ -79,19 +109,27 @@ const Checkout = () => {
           </Col>
           <Col xs={9}>
             <div><strong>{product.name}</strong></div>
-            <div>Size: {product.size}</div>
-            <div>Unit Price: ${product.unitPrice.toFixed(2)}</div>
+            <div>Size: {product.size?.[0] ?? 'N/A'}</div>
+            <div>
+              Unit Price: ${typeof product.unitPrice === 'number' ? product.unitPrice.toFixed(2) : 'N/A'}
+            </div>
             <div>Quantity: {product.quantity}</div>
-            <div><strong>Total: ${getItemTotal(product)}</strong></div>
+            <div>
+              <strong>
+                Total: ${typeof product.unitPrice === 'number' ? getItemTotal(product) : 'N/A'}
+              </strong>
+            </div>
           </Col>
         </Row>
       ))}
 
-      <h5 className="mt-3">Grand Total: <span className="text-success">${getGrandTotal()}</span></h5>
+      <h5 className="mt-3">
+        Grand Total: <span className="text-success">${getGrandTotal()}</span>
+      </h5>
 
       <Form.Group className="mt-4 mb-3">
         <Form.Label>Select Bank</Form.Label>
-        <Form.Select value={selectedBank} onChange={(e) => handleBankSelect(e.target.value)}>
+        <Form.Select value={selectedBank} onChange={(e) => setSelectedBank(e.target.value)}>
           <option value="">-- Select a Bank --</option>
           <option value="Bank A">Bank A</option>
           <option value="Bank B">Bank B</option>
@@ -109,13 +147,12 @@ const Checkout = () => {
           Proceed to Payment
         </Button>
       </div>
+
       <Modal show={showConfirmModal} onHide={() => setShowConfirmModal(false)} centered>
         <Modal.Header closeButton>
           <Modal.Title>Confirm Payment</Modal.Title>
         </Modal.Header>
-        <Modal.Body>
-          Are you sure you want to proceed with the payment?
-        </Modal.Body>
+        <Modal.Body>Are you sure you want to proceed with the payment?</Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setShowConfirmModal(false)}>
             Cancel
