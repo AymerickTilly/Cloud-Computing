@@ -1,16 +1,19 @@
 import { useState } from 'react';
-import { Container, Form, Row, Col, Image, Button } from 'react-bootstrap';
+import { Modal, Container, Form, Row, Col, Image, Button } from 'react-bootstrap';
 import hoodieImage from '../assets/hoodies/hoodie_1.png';
 import tshirtImage from '../assets/shirts/shirt_1.png';
+import { useNavigate } from 'react-router-dom';
+
 const Checkout = () => {
   const [address, setAddress] = useState('');
+  const navigate = useNavigate();
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [selectedBank, setSelectedBank] = useState('');
   const [products] = useState([
     {
       id: 1,
       name: 'Product 1',
       image: hoodieImage,
-      variation: 'Color: Red',
       size: 'M',
       unitPrice: 29.99,
       quantity: 2,
@@ -19,7 +22,6 @@ const Checkout = () => {
       id: 2,
       name: 'Product 2',
       image: tshirtImage,
-      variation: 'Color: Blue',
       size: 'L',
       unitPrice: 49.99,
       quantity: 1,
@@ -40,15 +42,24 @@ const Checkout = () => {
       .reduce((sum, product) => sum + product.unitPrice * product.quantity, 0)
       .toFixed(2);
   };
+  
+  const confirmPayment = () => {
+    alert(`Proceeding to payment\nAddress: ${address}\nBank: ${selectedBank}\nTotal: $${getGrandTotal()}`);
+    setShowConfirmModal(false);
+  };
 
   const handlePayment = () => {
-    alert(`Proceeding to payment\nAddress: ${address}\nBank: ${selectedBank}\nTotal: $${getGrandTotal()}`);
+    setShowConfirmModal(true);
   };
 
   return (
     <Container style={{ maxWidth: 800, marginTop: 40, fontFamily: 'Times New Roman, serif' }}>
+      <div className="mb-3">
+        <Button variant="primary" onClick={() => navigate('/cart')}>
+          ← Back to Cart
+        </Button>
+      </div>
       <h2 className="mb-4 text-center">Checkout</h2>
-
       <Form.Group className="mb-4" controlId="checkoutAddress">
         <h4 className="mb-3">Shipping Address</h4>
         <Form.Control
@@ -68,7 +79,6 @@ const Checkout = () => {
           </Col>
           <Col xs={9}>
             <div><strong>{product.name}</strong></div>
-            <div>{product.variation}</div>
             <div>Size: {product.size}</div>
             <div>Unit Price: ${product.unitPrice.toFixed(2)}</div>
             <div>Quantity: {product.quantity}</div>
@@ -99,6 +109,22 @@ const Checkout = () => {
           Proceed to Payment
         </Button>
       </div>
+      <Modal show={showConfirmModal} onHide={() => setShowConfirmModal(false)} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Confirm Payment</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          Are you sure you want to proceed with the payment?
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowConfirmModal(false)}>
+            Cancel
+          </Button>
+          <Button variant="success" onClick={confirmPayment}>
+            Confirm
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </Container>
   );
 };

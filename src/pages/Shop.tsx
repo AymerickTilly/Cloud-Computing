@@ -18,6 +18,7 @@ import { useAuthStore } from "../auth/AuthStore";
 
 const Shop = () => {
   const [products, setProducts] = useState<Product[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [selectedSize, setSelectedSize] = useState("");
@@ -72,7 +73,20 @@ const Shop = () => {
     <div style={{ backgroundColor: "#423c37", minHeight: "100vh" }}>
       <Container className="py-4">
         <Row className="g-4 d-flex align-items-stretch">
-          {products.map((product) => (
+          <Form className="mb-4">
+            <Form.Control
+              type="text"
+              placeholder="Search for clothes..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </Form>
+
+          {products
+            .filter((product) =>
+              product.name.toLowerCase().includes(searchTerm.toLowerCase())
+            )
+            .map((product) => (
             <Col key={product.productId} xs={12} sm={6} md={4} className="d-flex h-100">
               <Card
                 className="shadow-sm h-100 w-100 d-flex flex-column"
