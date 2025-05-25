@@ -28,7 +28,7 @@ const Home = () => {
       }
     };
     fetchProducts();
-  }, []);
+  }, [userId]);
 
   if (loading || productsLoading) return <p>Loading...</p>;
 
