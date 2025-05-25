@@ -3,9 +3,9 @@ const Footer = () => {
         <>
         {/* 🔻 Footer */}
             <footer
-                className="text-white text-center py-4"
+                className="text-black text-center py-4"
                 style={{
-                backgroundColor: '#000',
+                backgroundColor: 'white',
                 width: '100vw',
                 }}
             >
