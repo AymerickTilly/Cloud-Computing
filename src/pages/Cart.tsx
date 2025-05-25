@@ -3,81 +3,54 @@ import { useNavigate } from 'react-router-dom';
 import { Container, Row, Col, Form, Image, Button, Card } from 'react-bootstrap';
 import { useAuthStore } from '../auth/AuthStore';
 import { loadCartsByID } from '../api/loadCarts';
-import { Cart as BackendCart } from '../types/Cart';
+import { Cart } from '../types/Cart';
 import { deleteCart } from '../api/deleteCart';
 
-interface CartItem {
-  id: number;
-  name: string;
-  image: string;
-  quantity: number;
-  size: string[];
-  unitPrice: number;
-  userId: string;
-  cartId: string;
-}
-
-const Cart: React.FC = () => {
+const CartPage: React.FC = () => {
   const navigate = useNavigate();
   const { user, loading } = useAuthStore();
-  const [selectedItems, setSelectedItems] = useState<number[]>([]);
-  const [items, setItems] = useState<CartItem[]>([]);
+  const [carts, setCarts] = useState<Cart[]>([]);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]); // use cartId for unique IDs
 
   useEffect(() => {
     if (!user?.username) return;
 
     loadCartsByID(user.username)
-      .then((data: BackendCart[]) => {
-        const transformed: CartItem[] = data.map((item, index) => ({
-          id: index + 1,
-          name: item.name,
-          image: item.imageUrl,
-          quantity: item.quantity,
-          size: [item.size],
-          unitPrice: item.price,
-          userId: item.userId,
-          cartId: item.cartId,
-        }));
-        setItems(transformed);
-      })
-      .catch(err => console.error("Failed to load cart:", err));
+      .then(setCarts)
+      .catch((err) => console.error("Failed to load cart:", err));
   }, [user]);
 
-  const allSelected = selectedItems.length === items.length;
-
-  const handleSelectAll = () => {
-    setSelectedItems(allSelected ? [] : items.map((item) => item.id));
+  const toggleAll = () => {
+    setSelectedIds(selectedIds.length === carts.length ? [] : carts.map(c => c.cartId));
   };
 
-  const handleCheckboxChange = (id: number) => {
-    setSelectedItems((prev) =>
-      prev.includes(id) ? prev.filter((itemId) => itemId !== id) : [...prev, id]
+  const toggleSelection = (cartId: string) => {
+    setSelectedIds(prev =>
+      prev.includes(cartId) ? prev.filter(id => id !== cartId) : [...prev, cartId]
     );
   };
 
-  const handleQuantityChange = (id: number, quantity: number) => {
-    setItems(prev =>
-      prev.map(item =>
-        item.id === id ? { ...item, quantity } : item
-      )
+  const handleQuantityChange = (cartId: string, quantity: number) => {
+    setCarts(prev =>
+      prev.map(c => c.cartId === cartId ? { ...c, quantity } : c)
     );
   };
 
-  const handleDeleteItemFromCart = async (userId: string, cartId: string, id: number) => {
-    const success = await deleteCart({ userId, cartId } as BackendCart);
+  const handleDelete = async (cart: Cart) => {
+    const success = await deleteCart(cart);
     if (success) {
-      setItems(prev => prev.filter(item => item.id !== id));
-      setSelectedItems(prev => prev.filter(itemId => itemId !== id));
+      setCarts(prev => prev.filter(c => c.cartId !== cart.cartId));
+      setSelectedIds(prev => prev.filter(id => id !== cart.cartId));
     } else {
-      alert("Failed to delete item from cart.");
+      alert("Failed to delete item.");
     }
   };
 
-  const getItemSubtotal = (item: CartItem) => item.quantity * item.unitPrice;
+  const getSubtotal = (item: Cart) => item.price * item.quantity;
   const getTotal = () =>
-    items
-      .filter((item) => selectedItems.includes(item.id))
-      .reduce((sum, item) => sum + getItemSubtotal(item), 0)
+    carts
+      .filter(c => selectedIds.includes(c.cartId))
+      .reduce((sum, c) => sum + getSubtotal(c), 0)
       .toFixed(2);
 
   if (loading) return <p>Loading...</p>;
@@ -86,35 +59,35 @@ const Cart: React.FC = () => {
     <Container className="py-5" style={{ fontFamily: 'Times New Roman, sans-serif' }}>
       <h2 className="mb-4 text-center">Your Cart</h2>
 
-      {items.length === 0 ? (
-        <p className="text-center fs-5 text-muted">Your cart is empty, come on man buy something 🤬</p>
+      {carts.length === 0 ? (
+        <p className="text-center fs-5 text-muted">Your cart is empty</p>
       ) : (
         <>
           <Row className="mb-3">
             <Col>
-              <Button variant="primary" size="sm" onClick={handleSelectAll}>
-                {allSelected ? 'Deselect All' : 'Select All'}
+              <Button variant="primary" size="sm" onClick={toggleAll}>
+                {selectedIds.length === carts.length ? 'Deselect All' : 'Select All'}
               </Button>
             </Col>
           </Row>
 
-          {items.map((item) => (
-            <Card className="mb-4 shadow-sm bg-light" key={item.id}>
+          {carts.map(item => (
+            <Card className="mb-4 shadow-sm bg-light" key={item.cartId}>
               <Card.Body>
                 <Row className="align-items-center text-center">
                   <Col xs={1}>
                     <Form.Check
                       type="checkbox"
-                      checked={selectedItems.includes(item.id)}
-                      onChange={() => handleCheckboxChange(item.id)}
+                      checked={selectedIds.includes(item.cartId)}
+                      onChange={() => toggleSelection(item.cartId)}
                     />
                   </Col>
                   <Col xs={2}>
-                    <Image src={item.image} alt={item.name} style={{ width: '100px' }} fluid rounded />
+                    <Image src={item.imageUrl} alt={item.name} style={{ width: '100px' }} fluid rounded />
                   </Col>
                   <Col xs={3}>
                     <h5>{item.name}</h5>
-                    <p>Unit Price: ${item.unitPrice.toFixed(2)}</p>
+                    <p>Unit Price: ${item.price.toFixed(2)}</p>
                   </Col>
                   <Col xs={1}>
                     <Form.Group>
@@ -123,29 +96,27 @@ const Cart: React.FC = () => {
                         type="number"
                         min={1}
                         value={item.quantity}
-                        onChange={(e) => handleQuantityChange(item.id, parseInt(e.target.value) || 1)}
+                        onChange={(e) => handleQuantityChange(item.cartId, parseInt(e.target.value) || 1)}
                       />
                     </Form.Group>
                   </Col>
                   <Col xs={2}>
                     <Form.Group>
                       <Form.Label>Size</Form.Label>
-                      <Form.Select defaultValue={item.size[0]}>
-                        {item.size.map((s, idx) => (
-                          <option key={idx}>{s}</option>
-                        ))}
+                      <Form.Select defaultValue={item.size}>
+                        <option>{item.size}</option>
                       </Form.Select>
                     </Form.Group>
                   </Col>
                   <Col xs={2}>
                     <strong>Subtotal:</strong><br />
-                    ${getItemSubtotal(item).toFixed(2)}
+                    ${getSubtotal(item).toFixed(2)}
                   </Col>
                   <Col xs={1}>
                     <Button
                       variant="outline-danger"
                       size="sm"
-                      onClick={() => handleDeleteItemFromCart(item.userId, item.cartId, item.id)}
+                      onClick={() => handleDelete(item)}
                     >
                       Remove
                     </Button>
@@ -165,8 +136,23 @@ const Cart: React.FC = () => {
               <Button
                 variant="success"
                 size="lg"
-                onClick={() => navigate('/checkout')}
-                disabled={selectedItems.length === 0}
+                onClick={() =>
+                navigate('/checkout', {
+                state: {
+                  selectedItems: carts
+                  .filter((item) => selectedIds.includes(item.cartId))
+                  .map((item) => ({
+                  id: item.cartId,  // keep string ID
+                  name: item.name,
+                  image: item.imageUrl,
+                  quantity: item.quantity,
+                  size: [item.size],
+                  unitPrice: item.price,
+                })),
+                },
+                })
+                }
+                disabled={selectedIds.length === 0}
               >
                 Proceed to Checkout
               </Button>
@@ -178,4 +164,4 @@ const Cart: React.FC = () => {
   );
 };
 
-export default Cart;
+export default CartPage;
