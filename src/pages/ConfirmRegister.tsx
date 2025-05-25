@@ -11,7 +11,7 @@ import { User } from "../types/User";
 
 const ConfirmRegisterForm = () => {
   const navigate = useNavigate();
-  const { resetAuth, setLoading, address, setUserId } = useAuthStore();
+  const { resetAuth, setLoading, address } = useAuthStore();
 
   const {
     register,
@@ -35,7 +35,7 @@ const ConfirmRegisterForm = () => {
         const { sub } = await signIn({ username: data.email, password: data.password });
         useAuthStore.getState().setPendingUsername(null);
 
-        setUserId(sub)
+        useAuthStore.getState().setUserId(sub)
         // Use the Cognito sub as userId
         const newUser: User = {
           userId: sub, // Use sub (UUID) instead of username

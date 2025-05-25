@@ -9,7 +9,7 @@ import { useAuthStore } from "../auth/AuthStore";
 const FormWithReactHookFormAndZod = () => {
 
   const navigate = useNavigate();
-  const { setPasswordReset, setUserId, userId } = useAuthStore();
+  const { setPasswordReset, userId } = useAuthStore();
 
   const {
     register,
@@ -23,7 +23,7 @@ const FormWithReactHookFormAndZod = () => {
   const onSubmit = async (data: TsignInSchema) => {
     try {
       const { sub } = await signIn({ username: data.email, password: data.password });
-      setUserId(sub);
+      useAuthStore.getState().setUserId(sub);
       console.log(userId);
       navigate('/');
     } catch (err: unknown) {
