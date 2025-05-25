@@ -202,14 +202,27 @@ const Shop = () => {
             <Form.Group controlId="quantityInput">
               <Form.Label><strong>Quantity</strong></Form.Label>
               <Form.Control
-                type="number"
-                min={1}
-                max={
-                  selectedProduct.stock.find((item) => item.size === selectedSize)?.stockAmount || 10
-                }
-                value={selectedQuantity}
-                onChange={(e) => setSelectedQuantity(Number(e.target.value))}
-              />
+                  type="number"
+                  min={1}
+                  max={
+                    selectedProduct.stock.find((item) => item.size === selectedSize)?.stockAmount || 10
+                  }
+                  value={selectedQuantity}
+                  onChange={(e) => {
+                    const inputQuantity = Number(e.target.value);
+                    const maxStock =
+                      selectedProduct.stock.find((item) => item.size === selectedSize)?.stockAmount || 10;
+                    
+                    // Clamp to valid range
+                    if (inputQuantity > maxStock) {
+                      setSelectedQuantity(maxStock);
+                    } else if (inputQuantity < 1) {
+                      setSelectedQuantity(1);
+                    } else {
+                      setSelectedQuantity(inputQuantity);
+                    }
+                  }}
+                />
             </Form.Group>
             </Modal.Body>
             <Modal.Footer>
