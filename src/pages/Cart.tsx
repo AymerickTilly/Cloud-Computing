@@ -143,7 +143,7 @@ const CartPage: React.FC = () => {
                   .filter((item) => selectedIds.includes(item.cartId))
                   .map((item) => ({
                   cartId: item.cartId,
-                  id: item.cartId,  // keep string ID
+                  id: item.productId,  // keep string ID
                   name: item.name,
                   image: item.imageUrl,
                   quantity: item.quantity,

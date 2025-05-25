@@ -8,6 +8,8 @@ import { ProductItem } from '../interface/ProductItem';
 import { v4 as uuidv4 } from 'uuid';
 import { addOrder } from '../api/addOrder';
 import { deleteCart } from '../api/deleteCart';
+import { updateProduct } from '../api/updateProduct';
+import { loadProductById } from '../api/loadProduct';
 
 interface CheckoutLocationState {
   selectedItems: ProductItem[];
@@ -92,26 +94,77 @@ const Checkout = () => {
       paymentMethod: selectedBank,
     };
 
+    // Helper function to convert stock array to map
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    function stockArrayToMap(stockArray: any[]) {
+      return stockArray.reduce((acc, item) => {
+        acc[item.size] = item.stockAmount;
+        return acc;
+      }, {});
+    }
+
     const response = await addOrder(orderData);
     if (response) {
-      // Delete each cart item in parallel
-      const deleteResults = await Promise.all(
-        orderData.products.map(product =>
-          deleteCart({
-            userId: orderData.userId, cartId: product.cartId,
-            productId: '',
-            name: '',
-            price: 0,
-            size: '',
-            quantity: 0,
-            imageUrl: ''
-          })
-        )
+      const operationResults = await Promise.all(
+        orderData.products.map(async product => {
+          try {
+            // 1. Delete cart item
+            const deleteSuccess = await deleteCart({
+              userId: orderData.userId,
+              cartId: product.cartId,
+              productId: '',
+              name: '',
+              price: 0,
+              size: '',
+              quantity: 0,
+              imageUrl: ''
+            });
+
+            // 2. Load product to get current stock
+            const productData = await loadProductById(product.id);
+            if (!productData || !productData.stock) {
+              console.warn(`Invalid product or stock data for product ID ${product.id}`);
+              return false;
+            }
+
+            // Convert stock array to map
+            const stockMap = stockArrayToMap(productData.stock);
+
+            if (typeof stockMap[product.size] !== 'number') {
+              console.warn(`Invalid stock data for product ID ${product.id}, size ${product.size}`, productData.stock);
+              return false;
+            }
+
+            const current_stock = stockMap[product.size];
+            const new_stock = current_stock - product.quantity;
+
+            if (new_stock < 0) {
+              console.warn(`Stock would go negative for product ${product.id} (${product.size})`);
+              return false;
+            }
+
+            // Update stock map with new stock
+            const updatedStockArray = productData.stock.map((item: { size: string; }) =>
+              item.size === product.size ? { ...item, stockAmount: new_stock } : item
+            );
+
+            // 3. Update stock
+            const updateSuccess = await updateProduct({
+              productId: product.id,
+              stock: updatedStockArray,
+            });
+
+            return deleteSuccess && updateSuccess;
+          } catch (err) {
+            console.error(`Error processing product ${product.id}:`, err);
+            return false;
+          }
+        })
       );
 
-      const failedDeletions = deleteResults.filter(success => !success);
-      if (failedDeletions.length > 0) {
-        console.warn(`${failedDeletions.length} cart item(s) failed to delete`);
+      const failedOps = operationResults.filter(success => !success);
+      if (failedOps.length > 0) {
+        console.warn(`${failedOps.length} product(s) failed to process (delete/update).`);
       }
 
       alert(`Order placed successfully!\nOrder ID: ${response.item.orderId}`);
@@ -126,6 +179,7 @@ const Checkout = () => {
     setShowConfirmModal(false);
   }
 };
+
 
   const handlePayment = () => {
     setShowConfirmModal(true);
