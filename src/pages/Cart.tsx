@@ -5,6 +5,8 @@ import { useAuthStore } from '../auth/AuthStore';
 import { loadCartsByID } from '../api/loadCarts';
 import { Cart as BackendCart } from '../types/Cart';
 import { deleteCart } from '../api/deleteCart';
+import { loadProducts } from "../api/loadProducts";
+import { Product } from "../types/Product";
 
 interface CartItem {
   id: number;
@@ -17,8 +19,13 @@ interface CartItem {
   cartId: string;
 }
 
+type StockItem = {
+  size: string;
+  stockAmount: number;
+};
 const Cart: React.FC = () => {
   const navigate = useNavigate();
+  const [products, setProducts] = useState<Product[]>([]);
   const { user, loading } = useAuthStore();
   const [selectedItems, setSelectedItems] = useState<number[]>([]);
   const [items, setItems] = useState<CartItem[]>([]);
@@ -42,6 +49,12 @@ const Cart: React.FC = () => {
       })
       .catch(err => console.error("Failed to load cart:", err));
   }, [user]);
+  
+  useEffect(() => {
+      loadProducts()
+        .then(setProducts)
+        .catch(console.error);
+    }, []);
 
   const allSelected = selectedItems.length === items.length;
 
@@ -62,7 +75,32 @@ const Cart: React.FC = () => {
       )
     );
   };
+  const handleCheckout = () => {
+    const issues: string[] = [];
 
+    items
+      .filter(item => selectedItems.includes(item.id))
+      .forEach(item => {
+        const product = products.find((p: Product) => p.name === item.name);
+        if (!product) return;
+
+        const stockEntry = product?.stock.find((s: StockItem) => s.size === item.size[0]);
+        const availableStock = stockEntry?.stockAmount ?? 0;
+
+        if (item.quantity > availableStock) {
+          issues.push(
+            `Only ${availableStock} left for "${item.name}" size "${item.size[0]}".`
+          );
+        }
+      });
+
+    if (issues.length > 0) {
+      alert(issues.join('\n'));
+      return;
+    }
+
+    navigate('/checkout');
+  };
   const handleDeleteItemFromCart = async (userId: string, cartId: string, id: number) => {
     const success = await deleteCart({ userId, cartId } as BackendCart);
     if (success) {
@@ -165,7 +203,7 @@ const Cart: React.FC = () => {
               <Button
                 variant="success"
                 size="lg"
-                onClick={() => navigate('/checkout')}
+                onClick={handleCheckout}
                 disabled={selectedItems.length === 0}
               >
                 Proceed to Checkout
