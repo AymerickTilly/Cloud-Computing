@@ -12,7 +12,7 @@ export async function updateUser(userData: User): Promise<any | null> {
       return null;
     }
 
-    console.log("Sending PUT request with productData:", userData);
+    console.log("Sending PUT request with updateUser:", userData);
     const res = await fetch(
       "https://yv9hvyex77.execute-api.ap-southeast-2.amazonaws.com/dev/user",
       {
