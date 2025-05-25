@@ -1,8 +1,6 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Form, Button, Card, Container, Row, Col, Modal } from "react-bootstrap";
 import { useForm } from "react-hook-form";
-//import { getUserFromId } from "../api/getUser";
-//import { getIdToken, getUserId } from "../auth/AuthStore";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { profileUpdateSchema, TprofileUpdateFormData } from "../schemas/TprofileUpdateSchema";
 import { useAuthStore } from "../auth/AuthStore";
