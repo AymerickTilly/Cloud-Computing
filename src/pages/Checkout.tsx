@@ -4,16 +4,10 @@ import { Modal, Container, Form, Row, Col, Image, Button } from 'react-bootstrap
 import { useAuthStore } from '../auth/AuthStore';
 import { loadUserById } from '../api/loadUser';
 import { User } from '../types/User';
-
-
-interface ProductItem {
-  id: string;
-  name: string;
-  image: string;
-  quantity: number;
-  size: string[];
-  unitPrice: number;
-}
+import { ProductItem } from '../interface/ProductItem';
+import { v4 as uuidv4 } from 'uuid';
+import { addOrder } from '../api/addOrder';
+import { deleteCart } from '../api/deleteCart';
 
 interface CheckoutLocationState {
   selectedItems: ProductItem[];
@@ -27,9 +21,8 @@ const Checkout = () => {
   const [selectedBank, setSelectedBank] = useState('');
   const [products, setProducts] = useState<ProductItem[]>([]);
 
-  // Get user from auth store
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const user = useAuthStore((state: { user: any; }) => state.user);
+  const user = useAuthStore((state: { user: any }) => state.user);
 
   useEffect(() => {
     if (!state || !Array.isArray(state.selectedItems)) {
@@ -77,10 +70,62 @@ const Checkout = () => {
       .toFixed(2);
   };
 
-  const confirmPayment = () => {
-    alert(`Proceeding to payment\nAddress: ${address}\nBank: ${selectedBank}\nTotal: $${getGrandTotal()}`);
+  const confirmPayment = async () => {
+  try {
+    const orderData = {
+      orderId: uuidv4(),
+      userId: user.username,
+      date: new Date().toISOString(),
+      status: "PENDING",
+      products: products.map(p => ({
+        cartId: p.cartId,
+        id: p.id,
+        name: p.name,
+        image: p.image,
+        quantity: p.quantity,
+        size: p.size[0],
+        unitPrice: p.unitPrice,
+        totalPrice: p.unitPrice * p.quantity,
+      })),
+      totalAmount: parseFloat(getGrandTotal()),
+      shippingAddress: address,
+      paymentMethod: selectedBank,
+    };
+
+    const response = await addOrder(orderData);
+    if (response) {
+      // Delete each cart item in parallel
+      const deleteResults = await Promise.all(
+        orderData.products.map(product =>
+          deleteCart({
+            userId: orderData.userId, cartId: product.cartId,
+            productId: '',
+            name: '',
+            price: 0,
+            size: '',
+            quantity: 0,
+            imageUrl: ''
+          })
+        )
+      );
+
+      const failedDeletions = deleteResults.filter(success => !success);
+      if (failedDeletions.length > 0) {
+        console.warn(`${failedDeletions.length} cart item(s) failed to delete`);
+      }
+
+      alert(`Order placed successfully!\nOrder ID: ${response.item.orderId}`);
+      navigate('/cart');
+    } else {
+      alert('Failed to place order.');
+    }
+  } catch (err) {
+    console.error('Order error:', err);
+    alert('Something went wrong. Try again.');
+  } finally {
     setShowConfirmModal(false);
-  };
+  }
+};
 
   const handlePayment = () => {
     setShowConfirmModal(true);

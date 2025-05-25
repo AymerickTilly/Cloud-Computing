@@ -142,6 +142,7 @@ const CartPage: React.FC = () => {
                   selectedItems: carts
                   .filter((item) => selectedIds.includes(item.cartId))
                   .map((item) => ({
+                  cartId: item.cartId,
                   id: item.cartId,  // keep string ID
                   name: item.name,
                   image: item.imageUrl,
