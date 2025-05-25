@@ -10,7 +10,7 @@ import { Slide } from '../types/Slide';
 
 
 const Home = () => {
-  const { loading } = useAuthStore();
+  const { loading, userId } = useAuthStore();
   const [products, setProducts] = useState<Product[]>([]);
   const [productsLoading, setProductsLoading] = useState(true);
 
@@ -21,6 +21,7 @@ const Home = () => {
         const allProducts = await loadProducts();
         setProducts(allProducts);
         setProductsLoading(false);
+        console.log(userId)
       } catch (error) {
         console.error('Error fetching products:', error);
         setProductsLoading(false);
