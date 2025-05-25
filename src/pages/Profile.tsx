@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Form, Button, Card, Container, Row, Col, Modal } from "react-bootstrap";
+import { Form, Button, Card, Container } from "react-bootstrap";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { profileUpdateSchema, TprofileUpdateFormData } from "../schemas/TprofileUpdateSchema";
@@ -16,7 +16,6 @@ type ProfileData = {
 export default function ProfilePage() {
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [editMode, setEditMode] = useState(false);
-  const [showCartModal, setShowCartModal] = useState(false);
 
   const { userId } = useAuthStore();
   
@@ -115,34 +114,6 @@ export default function ProfilePage() {
           )}
         </Card.Body>
       </Card>
-
-      <Row className="mt-4">
-        <Col>
-          <Button variant="outline-dark" onClick={() => alert("Redirect to Orders page")}>
-            View Orders
-          </Button>
-        </Col>
-        <Col>
-          <Button variant="outline-primary" onClick={() => setShowCartModal(true)}>
-            View Cart
-          </Button>
-        </Col>
-      </Row>
-
-      <Modal show={showCartModal} onHide={() => setShowCartModal(false)}>
-        <Modal.Header closeButton>
-          <Modal.Title>Your Cart</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          {/* Replace this with dynamic cart content */}
-          <p>Cart contents will appear here...</p>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowCartModal(false)}>
-            Close
-          </Button>
-        </Modal.Footer>
-      </Modal>
     </Container>
   );
 }
