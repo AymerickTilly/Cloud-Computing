@@ -1,6 +1,6 @@
 import { getIdToken } from "../auth/AuthStore";
 
-export async function loadOrdersById(orderId: string) {
+export async function loadOrders() {
   const idToken = await getIdToken();
   console.log("ID Token:", idToken);
 
@@ -9,7 +9,7 @@ export async function loadOrdersById(orderId: string) {
     return null;
   }
 
-  const url = `https://yv9hvyex77.execute-api.ap-southeast-2.amazonaws.com/dev/cart?userId=${encodeURIComponent(orderId)}`;
+  const url = `https://yv9hvyex77.execute-api.ap-southeast-2.amazonaws.com/dev/orders`;
 
   const res = await fetch(url, {
     method: "GET",
@@ -20,7 +20,7 @@ export async function loadOrdersById(orderId: string) {
   });
 
   if (!res.ok) {
-    throw new Error(`Failed to fetch orders ${orderId}: ${res.status}`);
+    throw new Error(`Failed to fetch orders ${res.status}`);
   }
 
   return res.json();
