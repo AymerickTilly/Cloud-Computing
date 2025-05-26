@@ -162,7 +162,7 @@ const ListOrdersPage = () => {
     fetchOrders();
   }, [user, isAdmin, isCustomer]);
 
-
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const getItemTotal = (product: any) => (product.unitPrice * product.quantity).toFixed(2);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const getGrandTotal = (items: any[]) =>
