@@ -136,7 +136,15 @@ const ListOrdersPage = () => {
 
   return (
     <Container style={{ maxWidth: 800, marginTop: 40, fontFamily: 'Times New Roman, serif' }}>
-      <h2 className="mb-4 text-center">Your Orders</h2>
+      {isAdmin ? (
+        <>
+          <h2 className="mb-4 text-center">User Orders</h2>
+        </>
+      ) : (
+        <>
+          <h2 className="mb-4 text-center">Your Orders</h2>
+        </>
+      )}
 
       <Form className="mb-4">
         <Row className="g-2">
@@ -197,7 +205,7 @@ const ListOrdersPage = () => {
             </div>
           </Card.Header>
           <Card.Body>
-            <p><strong>User:</strong> {order.userId}</p>
+            <p><strong>User:</strong> {order.username}</p>
             <p><strong>Address:</strong> {order.shippingAddress}</p>
 
             <h5>Items:</h5>
