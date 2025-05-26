@@ -35,8 +35,8 @@ const ListOrdersPage = () => {
 
   // UI / filter state
   const [searchTerm, setSearchTerm]     = useState('');
-  const [beforeDate, setBeforeDate]     = useState('');
-  const [afterDate, setAfterDate]       = useState('');
+  //const [beforeDate, setBeforeDate]     = useState('');
+  //const [afterDate, setAfterDate]       = useState('');
   const [statusFilter, setStatusFilter] = useState<'All' | Order['status']>('All');
   const [statusUpdates, setStatusUpdates] = useState<Record<string, Order['status']>>({});
   const [orderToUpdate, setOrderToUpdate] = useState<string | null>(null);
@@ -46,47 +46,45 @@ const ListOrdersPage = () => {
 
   const [loading, setLoading] = useState(true);
   const [error, setError]     = useState<string | null>(null);
-
-  // Fetch orders
-  useEffect(() => {
+  
+   const refreshOrders = async () => {
     if (!user) return;
     setLoading(true);
     setError(null);
 
-    (async () => {
-      try {
-        if (isAdmin) {
-          setMonitoringOrders(await loadOrders());
-          setUserOrder(null);
-        } else if (isCustomer && orderIdFromState) {
-          setUserOrder(await loadOrderById(orderIdFromState));
-          setMonitoringOrders([]);
-        }
-      } catch (err) {
-        console.error(err);
-        setError('Failed to load orders.');
-      } finally {
-        setLoading(false);
+    try {
+      if (isAdmin) {
+        setMonitoringOrders(await loadOrders());
+        setUserOrder(null);
+      } else if (isCustomer && orderIdFromState) {
+        setUserOrder(await loadOrderById(orderIdFromState));
+        setMonitoringOrders([]);
       }
-    })();
+    } catch (err) {
+      console.error(err);
+      setError('Failed to load orders.');
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  // Fetch orders
+  useEffect(() => {
+    refreshOrders();    
   }, [user, isAdmin, isCustomer, orderIdFromState]);
 
   const ordersToDisplay = isAdmin ? monitoringOrders : userOrder ? [userOrder] : [];
 
   // Filtering & totals
   const filtered = ordersToDisplay.filter(o => {
-    const d = new Date(o.date);
-    const after  = afterDate  ? new Date(afterDate)  : null;
-    const before = beforeDate ? new Date(beforeDate) : null;
     const s = searchTerm.toLowerCase();
 
     return (
       (o.orderId.toLowerCase().includes(s) ||
        o.shippingAddress.toLowerCase().includes(s) ||
        o.username.toLowerCase().includes(s) ||
-       o.products.some(p => p.name.toLowerCase().includes(s))) &&
-      (!after  || d >= after) &&
-      (!before || d <= before) &&
+       o.products.some(p => p.name.toLowerCase().includes(s))) 
+       &&
       (statusFilter === 'All' || o.status === statusFilter)
     );
   });
@@ -107,6 +105,7 @@ const ListOrdersPage = () => {
     setOrderToCancel(id);
     setShowCancelModal(true);
   };
+  
   const confirmCancel = async () => {
     if (!orderToCancel) return;
     try {
@@ -136,6 +135,8 @@ const ListOrdersPage = () => {
       else setMonitoringOrders(prev =>
         prev.map(o => o.orderId === orderToCancel ? { ...o, status: 'CANCELLED' } : o)
       );
+      
+      await refreshOrders();
 
       alert(`Order ${orderToCancel} cancelled and stock restocked.`);
     } catch (err) {
@@ -207,12 +208,12 @@ const ListOrdersPage = () => {
               onChange={e => setSearchTerm(e.target.value)}
             />
           </Col>
-          <Col xs="auto">
+          {/* <Col xs="auto">
             <Form.Control type="date" value={afterDate}  onChange={e => setAfterDate(e.target.value)}  title="After" />
-          </Col>
-          <Col xs="auto">
+          </Col> */}
+          {/* <Col xs="auto">
             <Form.Control type="date" value={beforeDate} onChange={e => setBeforeDate(e.target.value)} title="Before" />
-          </Col>
+          </Col> */}
           <Col xs="auto">
             <Form.Select
               value={statusFilter}
@@ -247,7 +248,7 @@ const ListOrdersPage = () => {
 
             <h5>Items:</h5>
             {o.products.map(p => (
-              <Row className="align-items-center mb-3" key={p.id}>
+              <Row className="align-items-center mb-3" key={`${p.id}-${p.size}`}>
                 <Col xs={3}><Image src={p.image} fluid rounded /></Col>
                 <Col xs={9}>
                   <div><strong>{p.name}</strong></div>
