@@ -8,6 +8,7 @@ import Footer from '../components/Footer';
 import { Product } from '../types/Product';
 import { Slide } from '../types/Slide';
 import '../components/homestyling.css';
+import backgroundImage from '../assets/background-texture.png';
 
 const Home = () => {
   const { loading, userId } = useAuthStore();
@@ -34,7 +35,19 @@ const Home = () => {
   const categories = Array.from(new Set(products.map((p) => p.category)));
 
   return (
-    <div className="home-page">
+    <div
+        className="home-page"
+        style={{
+          backgroundImage: `url(${backgroundImage})`,
+          backgroundSize: 'cover',
+          backgroundRepeat: 'no-repeat',
+          backgroundPosition: 'center',
+          backgroundColor: 'none',
+          backgroundBlendMode: 'overlay',
+          minHeight: '100vh',
+          width: '100%',
+        }}
+      >
       <Container
         fluid
         className="d-flex flex-column align-items-center text-center pb-4"

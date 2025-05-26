@@ -1,14 +1,16 @@
 /* General page styling */
 
 .text-shadow {
-  text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.6);
+  text-shadow: 2px 2px 6px rgba(243, 243, 243, 0.342);
 }
 
 .home-page {
-  background-color: #b3acac;
+  background-color: #333333;
   min-height: 100vh;
   overflow-x: hidden;
 }
+
+
 
 /* Carousel card container */
 .carousel-card-wrapper {
@@ -22,10 +24,10 @@
 /* Carousel card itself */
 .carousel-card {
   position: relative; /* Needed for caption positioning */
-  background-color: #4238383e;
+  background-color: #0000009e;
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-  padding: 0;
+  padding: 1.5rem;
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -41,28 +43,17 @@
 
 .carousel-card img {
   height: 100%;
-  width: 100%;
+  width: 110%;
   object-fit: cover;
+  padding: 1rem;
   border-radius: 8px;
 }
 
-/* ✅ Custom caption style */
-.carousel-caption {
-  position: absolute;
-  bottom: 20px;
-  left: 20px;
-  right: 20px;
-  background-color: rgba(0, 0, 0, 0.6);
-  padding: 10px;
-  border-radius: 8px;
-  color: #fff;
-  text-align: center;
-  z-index: 2;
-}
+
 
 /* Hover effect for card */
 .carousel-card:hover {
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 8px 24px rgba(222, 222, 222, 0.5);
   transition: box-shadow 0.3s ease;
 }
 
@@ -77,7 +68,7 @@
   font-family: Arial, sans-serif;
   font-size: 1.3rem;
   text-align: center;
-  text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.6);
+  text-shadow: 1px 1px 4px rgb(34, 34, 34);
 }
 
 /* Modal image styling */
@@ -94,7 +85,7 @@
 }
 
 .carousel-card img {
-  height: 90%;
+  height: 100%;
   width: 100%;
   object-fit: cover;
   border-radius: 8px;
