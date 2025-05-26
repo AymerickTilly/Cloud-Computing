@@ -16,7 +16,6 @@ import {
   Alert,
 } from 'react-bootstrap';
 import { loadOrders } from '../api/loadOrders';
-import { loadOrderById } from '../api/loadOrder';
 import { loadProductById } from '../api/loadProduct';
 import { updateOrder } from '../api/update_order';
 import { updateProduct } from '../api/updateProduct';
@@ -31,7 +30,6 @@ const ListOrdersPage = () => {
   const orderIdFromState = (state as { orderId?: string })?.orderId;
 
   const [monitoringOrders, setMonitoringOrders] = useState<Order[]>([]);
-  const [userOrder, setUserOrder] = useState<Order | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<'All' | Order['status']>('All');
   const [statusUpdates, setStatusUpdates] = useState<Record<string, Order['status']>>({});
@@ -52,8 +50,6 @@ const ListOrdersPage = () => {
   // ——— Refresh / initial load ———
   const refreshOrders = async () => {
   console.log('[refreshOrders] user:', user);
-  console.log('[refreshOrders] isAdmin:', isAdmin, 'isCustomer:', isCustomer, 'orderIdFromState:', orderIdFromState);
-
   if (!user) {
     console.warn('[refreshOrders] no user, skipping load');
     return;
@@ -67,29 +63,12 @@ const ListOrdersPage = () => {
       const all = await loadOrders();
       console.log('[refreshOrders] admin loadOrders →', all);
       setMonitoringOrders(all);
-      setUserOrder(null);
     } else if (isCustomer) {
-      if (orderIdFromState) {
-        console.log('[refreshOrders] customer loadOrderById →', orderIdFromState);
-        const o = await loadOrderById(orderIdFromState);
-        console.log('[refreshOrders] got order:', o);
-        setUserOrder(o);
-        setMonitoringOrders([]);
-      } else {
-        console.log('[refreshOrders] customer fallback → loadOrders');
-        const all = await loadOrders();
-        console.log('[refreshOrders] all orders:', all);
-
-        const uid = user.userId;
-        const mine = all.filter((o: { orderId: string; userId: string }) => {
-          console.log(' ‑ checking order', o.orderId, 'userId:', o.userId);
-          return o.userId === uid;
-        });
-
-        console.log(`[refreshOrders] filtered ${mine.length} orders for userId "${uid}"`);
-        setMonitoringOrders(mine);
-        setUserOrder(null);
-      }
+      const all = await loadOrders();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const mine = all.filter((o: { userId: any; }) => o.userId === user.userId);
+      console.log(`[refreshOrders] filtered ${mine.length} orders for userId "${user.userId}"`);
+      setMonitoringOrders(mine);
     }
   } catch (err) {
     console.error('[refreshOrders] error', err);
@@ -105,11 +84,7 @@ const ListOrdersPage = () => {
   }, [user, isAdmin, isCustomer, orderIdFromState]);
 
   // Decide which array to render
-  const ordersToDisplay = isAdmin
-    ? monitoringOrders
-    : userOrder
-      ? [userOrder]
-      : monitoringOrders;
+  const ordersToDisplay = monitoringOrders;
 
   // ——— Filtering & totals ———
   const filtered = ordersToDisplay.filter(o => {
