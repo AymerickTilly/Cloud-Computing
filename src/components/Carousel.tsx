@@ -2,7 +2,7 @@ import { Carousel, Modal, Button } from 'react-bootstrap';
 import { useState } from 'react';
 import './Hover.css';
 import '../components/homestyling.css';
-import { useAuthStore } from '../auth/AuthStore';
+/*import { useAuthStore } from '../auth/AuthStore';*/
 
 type Slide = {
   image: string;
@@ -19,7 +19,6 @@ type CarouselComponentProps = {
 const CarouselComponent = ({ slides }: CarouselComponentProps) => {
   const [showModal, setShowModal] = useState(false);
   const [selectedSlide, setSelectedSlide] = useState<Slide | null>(null);
-  const { groups } = useAuthStore();
 
   const handleSlideClick = (slide: Slide) => {
     setSelectedSlide(slide);
@@ -27,12 +26,6 @@ const CarouselComponent = ({ slides }: CarouselComponentProps) => {
   };
 
   const handleClose = () => setShowModal(false);
-
-  const handleAddToCart = (slide: Slide | null) => {
-    if (!slide) return;
-    console.log('Added to cart:', slide.productId);
-    setShowModal(false);
-  };
 
   return (
     <>
@@ -54,7 +47,6 @@ const CarouselComponent = ({ slides }: CarouselComponentProps) => {
                   alt={slide.alt}
                   style={{ zIndex: 1, position: 'relative' }}
                 />
-                {/* Caption removed */}
               </Carousel.Item>
             ))}
           </Carousel>
@@ -84,11 +76,6 @@ const CarouselComponent = ({ slides }: CarouselComponentProps) => {
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={handleClose}>Close</Button>
-          {groups.includes('Customer') && (
-            <Button variant="primary" onClick={() => handleAddToCart(selectedSlide)}>
-              Add to Cart
-            </Button>
-          )}
         </Modal.Footer>
       </Modal>
     </>
