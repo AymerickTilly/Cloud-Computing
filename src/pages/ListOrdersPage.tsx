@@ -104,7 +104,9 @@ const ListOrdersPage = () => {
     },
   ];
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const getItemTotal = (product: any) => (product.unitPrice * product.quantity).toFixed(2);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const getGrandTotal = (items: any[]) =>
     items.reduce((sum, product) => sum + product.unitPrice * product.quantity, 0).toFixed(2);
 
