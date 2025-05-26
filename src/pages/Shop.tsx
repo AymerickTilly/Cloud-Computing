@@ -17,6 +17,8 @@ import { v4 as uuidv4 } from "uuid";
 import { useAuthStore } from "../auth/AuthStore";
 import "../components/Shopstyling.css"; 
 import backgroundImage from '../assets/background-texture.png';
+import { loadProductById } from "../api/loadProduct";
+
 
 const Shop = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -41,35 +43,64 @@ const Shop = () => {
   };
 
   const handleAddToCart = async () => {
-    if (!selectedProduct || !selectedSize) {
-      alert("Please select a product and size.");
+  if (!selectedProduct || !selectedSize) {
+    alert("Please select a product and size.");
+    return;
+  }
+
+  try {
+    // Fetch the latest stock for the selected product
+    const latestProduct = await loadProductById(selectedProduct.productId);
+
+    // Check stock for the selected size
+    const selectedStock = latestProduct.stock.find(
+      (item: { size: string; }) => item.size === selectedSize
+    );
+
+    if (!selectedStock) {
+      alert(`Size ${selectedSize} is no longer available.`);
       return;
     }
 
-    try {
-      const userId = user.username;
-      const cartId = uuidv4();
-
-      const cartItem = {
-        userId,
-        cartId,
-        productId: selectedProduct.productId,
-        name: selectedProduct.name,
-        price: selectedProduct.price,
-        size: selectedSize,
-        quantity: selectedQuantity,
-        imageUrl: selectedProduct.imageUrl,
-      };
-
-      const response = await addToCart(cartItem);
-      console.log("Cart item added:", response);
-      alert("Item added to cart!");
-      setShowModal(false);
-    } catch (error) {
-      console.error("Error adding to cart:", error);
-      alert("Failed to add item to cart.");
+    if (selectedQuantity > selectedStock.stockAmount) {
+      if(selectedStock.stockAmount == 0){
+        alert(
+        `The stock for size ${selectedSize} is empty, please wait untill next supply`
+      );
+      }
+      else{
+        alert(
+        `Only ${selectedStock.stockAmount} in stock for size ${selectedSize}. Please adjust quantity.`
+      );
+      }
+      
+      return;
     }
-  };
+
+    // Proceed to add item to cart
+    const userId = user.username;
+    const cartId = uuidv4();
+
+    const cartItem = {
+      userId,
+      cartId,
+      productId: selectedProduct.productId,
+      name: selectedProduct.name,
+      price: selectedProduct.price,
+      size: selectedSize,
+      quantity: selectedQuantity,
+      imageUrl: selectedProduct.imageUrl,
+    };
+
+    const response = await addToCart(cartItem);
+    console.log("Cart item added:", response);
+    alert("Item added to cart!");
+    setShowModal(false);
+  } catch (error) {
+    console.error("Error adding to cart:", error);
+    alert("Failed to add item to cart.");
+  }
+};
 
   return (
     <div
