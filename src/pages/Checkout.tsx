@@ -168,7 +168,9 @@ const Checkout = () => {
       }
 
       alert(`Order placed successfully!\nOrder ID: ${response.item.orderId}`);
-      navigate('/cart');
+      navigate('/listOrdersPage', {
+      state: { orderId: response.item.orderId }
+    });
     } else {
       alert('Failed to place order.');
     }
