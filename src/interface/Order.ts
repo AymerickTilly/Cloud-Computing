@@ -18,6 +18,7 @@ export interface Order {
   products: Product[];
   orderId: string;
   userId: string;
+  username: string;
   status: OrderStatus;
   paymentMethod: string;
 }
