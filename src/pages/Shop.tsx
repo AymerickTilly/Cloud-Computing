@@ -16,7 +16,9 @@ import { addToCart } from "../api/addCart";
 import { v4 as uuidv4 } from "uuid";
 import { useAuthStore } from "../auth/AuthStore";
 import "../components/Shopstyling.css"; 
+import backgroundImage from '../assets/background-texture.png';
 import { loadProductById } from "../api/loadProduct";
+
 
 const Shop = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -101,7 +103,18 @@ const Shop = () => {
 };
 
   return (
-    <div className="shop-container" style={{ minHeight: "100vh" }}>
+    <div
+          className="shop-container"
+          style={{
+            minHeight: "100vh",
+            backgroundImage: `url(${backgroundImage})`,
+            backgroundSize: "cover",
+            backgroundRepeat: "no-repeat",
+            backgroundPosition: "center",
+            backgroundColor: "none", // Optional overlay base
+            backgroundBlendMode: "overlay", // Optional for color blending
+          }}
+        >
       <Container className="py-4">
         <Row className="g-4 d-flex align-items-stretch">
           <Form className="mb-4">

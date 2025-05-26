@@ -7,6 +7,7 @@ import { useAuthStore } from "../auth/AuthStore";
 import { loadUserById } from "../api/loadUser";
 import { updateUser } from "../api/updateUser";
 import { User } from "../types/User";
+import backgroundImage from '../assets/background-texture.png';
 
 type ProfileData = {
   username: string;
@@ -17,7 +18,7 @@ export default function ProfilePage() {
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [editMode, setEditMode] = useState(false);
 
-  const { userId, user} = useAuthStore();
+  const { userId, user } = useAuthStore();
 
   const {
     register,
@@ -73,59 +74,74 @@ export default function ProfilePage() {
   };
 
   return (
-    <Container className="mt-5">
-      <Card className="p-4 shadow-sm rounded-4">
-        <Row className="align-items-center">
-          <Col md={2} className="text-center mb-3 mb-md-0">
-            <div
-              style={{
-                width: "80px",
-                height: "80px",
-                borderRadius: "50%",
-                backgroundColor: "#e9ecef",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: "28px",
-                fontWeight: "bold",
-              }}
-            >
-              {profile?.username?.[0]?.toUpperCase() || "U"}
-            </div>
-          </Col>
-          <Col md={10}>
-            <h4 className="mb-1">Profile</h4>
-            <p className="mb-4 text-muted">{profile?.username}</p>
-            <Form onSubmit={handleSubmit(onSubmit)}>
-              <Form.Group controlId="formAddress">
-                <Form.Label><strong>Delivery Address</strong></Form.Label>
-                <Form.Control
-                  type="text"
-                  {...register("address")}
-                  disabled={!editMode}
-                  className="rounded-3"
-                />
-                {errors.address && (
-                  <Form.Text className="text-danger">
-                    {errors.address.message}
-                  </Form.Text>
-                )}
-              </Form.Group>
-              <div className="mt-3">
-                {editMode ? (
-                  <Button variant="primary" type="submit" disabled={!isDirty}>
-                    Save Changes
-                  </Button>
-                ) : (
-                  <Button variant="outline-secondary" onClick={() => setEditMode(true)}>
-                    Edit Address
-                  </Button>
-                )}
+    <div
+      className="profile-page"
+      style={{
+        backgroundImage: `url(${backgroundImage})`,
+        backgroundSize: 'cover',
+        backgroundRepeat: 'no-repeat',
+        backgroundPosition: 'center',
+        backgroundColor: '#333333',
+        backgroundBlendMode: 'overlay',
+        minHeight: '100vh',
+        width: '100%',
+        paddingTop: '60px', // Optional: add some space if navbar overlaps
+      }}
+    >
+      <Container className="mt-5">
+        <Card className="p-4 shadow-sm rounded-4">
+          <Row className="align-items-center">
+            <Col md={2} className="text-center mb-3 mb-md-0">
+              <div
+                style={{
+                  width: "80px",
+                  height: "80px",
+                  borderRadius: "50%",
+                  backgroundColor: "#e9ecef",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: "28px",
+                  fontWeight: "bold",
+                }}
+              >
+                {profile?.username?.[0]?.toUpperCase() || "U"}
               </div>
-            </Form>
-          </Col>
-        </Row>
-      </Card>
-    </Container>
+            </Col>
+            <Col md={10}>
+              <h4 className="mb-1">Profile</h4>
+              <p className="mb-4 text-muted">{profile?.username}</p>
+              <Form onSubmit={handleSubmit(onSubmit)}>
+                <Form.Group controlId="formAddress">
+                  <Form.Label><strong>Delivery Address</strong></Form.Label>
+                  <Form.Control
+                    type="text"
+                    {...register("address")}
+                    disabled={!editMode}
+                    className="rounded-3"
+                  />
+                  {errors.address && (
+                    <Form.Text className="text-danger">
+                      {errors.address.message}
+                    </Form.Text>
+                  )}
+                </Form.Group>
+                <div className="mt-3">
+                  {editMode ? (
+                    <Button variant="primary" type="submit" disabled={!isDirty}>
+                      Save Changes
+                    </Button>
+                  ) : (
+                    <Button variant="outline-secondary" onClick={() => setEditMode(true)}>
+                      Edit Address
+                    </Button>
+                  )}
+                </div>
+              </Form>
+            </Col>
+          </Row>
+        </Card>
+      </Container>
+    </div>
   );
 }

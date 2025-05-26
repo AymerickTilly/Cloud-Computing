@@ -1,22 +1,22 @@
 /* Page background and base text color */
 body, .shop-container {
-  background-color: #7794b4; /* Main page background (cool blue) */
+  background-color: #333333; /* Main page background (cool blue) */
   color: #ffffff;            /* Default text color (white) */
 }
 
 /* Search bar styling */
 .shop-container .form-control {
-  background-color: #ffffff; /* White input background */
+  background-color: #ffffffe4; /* White input background */
   color: #000000;            /* Black input text */
-  border: 1px solid #ffffff; /* White border */
+  border: 1px solid #030303; /* White border */
 }
 .shop-container .form-control::placeholder {
-  color: #565151; /* Dim gray placeholder */
+  color: #000000; /* Dim gray placeholder */
 }
 
 /* Product card styling */
 .shop-card {
-  background-color: rgba(255, 255, 255, 0.742); /* Darker transparent black */
+  background-color: #ebe8e8ce; /* Darker transparent black */
   color: #000000;
   border: none;
   border-radius: 12px; /* Rounded corners */
@@ -27,13 +27,13 @@ body, .shop-container {
 /* Card hover effect */
 .shop-card:hover {
   transform: translateY(-6px); /* Lift effect */
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5); /* Stronger hover shadow */
+  box-shadow: 0 8px 24px rgb(246, 244, 244); /* Stronger hover shadow */
 }
 
 /* Size stock tags (S, M, L) */
 .shop-stock-tag {
   background-color: #ffffff;      /* White tag background */
-  color: #000000;                 /* Black text for size and stock */
+  color: #fbf8f8;                 /* Black text for size and stock */
   border: 1px solid #000000;
   border-radius: 6px;
   padding: 4px 8px;
@@ -43,15 +43,15 @@ body, .shop-container {
 
 /* Size tag hover effect */
 .shop-stock-tag:hover {
-  background-color: #ffffff;    /* Dark transparent background */
-  color: #ffffff;                 /* White text on hover */
+  background-color: #00000059;    /* Dark transparent background */
+  color: #fffbfb;                 /* White text on hover */
   transform: scale(1.05);         /* Slight zoom */
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 /* Modal styling */
 .modal-content {
-  background-color: #ffffff;
+  background-color: #e5e2e2;
   color: #000000;
   border-radius: 10px;
 }
