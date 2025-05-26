@@ -1,8 +1,8 @@
 // src/pages/ListOrdersPage.tsx
 
 import { useEffect, useState } from 'react';
-import { useLocation }                 from 'react-router-dom';
-import { useAuthStore }                from '../auth/AuthStore';
+import { useLocation } from 'react-router-dom';
+import { useAuthStore } from '../auth/AuthStore';
 import {
   Container,
   Card,
@@ -15,83 +15,32 @@ import {
   Spinner,
   Alert,
 } from 'react-bootstrap';
-import { loadOrders }   from '../api/loadOrders';
-import { loadOrderById }from '../api/loadOrder';    // renames order update API
-import { updateProduct }from '../api/updateProduct';  // product stock update API
-import { Order, Product } from '../interface/Order';
+import { loadOrders } from '../api/loadOrders';
+import { loadOrderById } from '../api/loadOrder';
 import { loadProductById } from '../api/loadProduct';
 import { updateOrder } from '../api/update_order';
+import { updateProduct } from '../api/updateProduct';
+import { Order, Product } from '../interface/Order';
 
 const ListOrdersPage = () => {
   const { user, groups } = useAuthStore();
   const isCustomer = groups.includes('Customer');
-  const isAdmin    = groups.includes('Admin');
+  const isAdmin = groups.includes('Admin');
 
   const { state } = useLocation();
   const orderIdFromState = (state as { orderId?: string })?.orderId;
 
   const [monitoringOrders, setMonitoringOrders] = useState<Order[]>([]);
-  const [userOrder, setUserOrder]               = useState<Order | null>(null);
-
-  // UI / filter state
-  const [searchTerm, setSearchTerm]     = useState('');
-  //const [beforeDate, setBeforeDate]     = useState('');
-  //const [afterDate, setAfterDate]       = useState('');
+  const [userOrder, setUserOrder] = useState<Order | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<'All' | Order['status']>('All');
   const [statusUpdates, setStatusUpdates] = useState<Record<string, Order['status']>>({});
   const [orderToUpdate, setOrderToUpdate] = useState<string | null>(null);
   const [showUpdateModal, setShowUpdateModal] = useState(false);
   const [showCancelModal, setShowCancelModal] = useState(false);
-  const [orderToCancel, setOrderToCancel]     = useState<string | null>(null);
-
+  const [orderToCancel, setOrderToCancel] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError]     = useState<string | null>(null);
-  
-   const refreshOrders = async () => {
-    if (!user) return;
-    setLoading(true);
-    setError(null);
-
-    try {
-      if (isAdmin) {
-        setMonitoringOrders(await loadOrders());
-        setUserOrder(null);
-      } else if (isCustomer && orderIdFromState) {
-        setUserOrder(await loadOrderById(orderIdFromState));
-        setMonitoringOrders([]);
-      }
-    } catch (err) {
-      console.error(err);
-      setError('Failed to load orders.');
-    } finally {
-      setLoading(false);
-    }
-  };
-  
-  // Fetch orders
-  useEffect(() => {
-    refreshOrders();    
-  }, [user, isAdmin, isCustomer, orderIdFromState]);
-
-  const ordersToDisplay = isAdmin ? monitoringOrders : userOrder ? [userOrder] : [];
-
-  // Filtering & totals
-  const filtered = ordersToDisplay.filter(o => {
-    const s = searchTerm.toLowerCase();
-
-    return (
-      (o.orderId.toLowerCase().includes(s) ||
-       o.shippingAddress.toLowerCase().includes(s) ||
-       o.username.toLowerCase().includes(s) ||
-       o.products.some(p => p.name.toLowerCase().includes(s))) 
-       &&
-      (statusFilter === 'All' || o.status === statusFilter)
-    );
-  });
-
-  const getItemTotal  = (p: Product) => (p.unitPrice * p.quantity).toFixed(2);
-  const getGrandTotal = (items: Product[]) =>
-    items.reduce((sum, p) => sum + p.unitPrice * p.quantity, 0).toFixed(2);
+  const [error, setError] = useState<string | null>(null);
 
   // Helper: stock array → map
   const stockArrayToMap = (stock: { size: string; stockAmount: number }[]) =>
@@ -100,47 +49,109 @@ const ListOrdersPage = () => {
       return acc;
     }, {});
 
-  // ————— Cancel Order —————
+  // ——— Refresh / initial load ———
+  const refreshOrders = async () => {
+  console.log('[refreshOrders] user:', user);
+  console.log('[refreshOrders] isAdmin:', isAdmin, 'isCustomer:', isCustomer, 'orderIdFromState:', orderIdFromState);
+
+  if (!user) {
+    console.warn('[refreshOrders] no user, skipping load');
+    return;
+  }
+
+  setLoading(true);
+  setError(null);
+
+  try {
+    if (isAdmin) {
+      const all = await loadOrders();
+      console.log('[refreshOrders] admin loadOrders →', all);
+      setMonitoringOrders(all);
+      setUserOrder(null);
+    } else if (isCustomer) {
+      if (orderIdFromState) {
+        console.log('[refreshOrders] customer loadOrderById →', orderIdFromState);
+        const o = await loadOrderById(orderIdFromState);
+        console.log('[refreshOrders] got order:', o);
+        setUserOrder(o);
+        setMonitoringOrders([]);
+      } else {
+        console.log('[refreshOrders] customer fallback → loadOrders');
+        const all = await loadOrders();
+        console.log('[refreshOrders] all orders:', all);
+
+        const uid = user.userId;
+        const mine = all.filter((o: { orderId: string; userId: string }) => {
+          console.log(' ‑ checking order', o.orderId, 'userId:', o.userId);
+          return o.userId === uid;
+        });
+
+        console.log(`[refreshOrders] filtered ${mine.length} orders for userId "${uid}"`);
+        setMonitoringOrders(mine);
+        setUserOrder(null);
+      }
+    }
+  } catch (err) {
+    console.error('[refreshOrders] error', err);
+    setError('Failed to load orders.');
+  } finally {
+    setLoading(false);
+  }
+};
+
+  useEffect(() => {
+    refreshOrders();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, isAdmin, isCustomer, orderIdFromState]);
+
+  // Decide which array to render
+  const ordersToDisplay = isAdmin
+    ? monitoringOrders
+    : userOrder
+      ? [userOrder]
+      : monitoringOrders;
+
+  // ——— Filtering & totals ———
+  const filtered = ordersToDisplay.filter(o => {
+    const s = searchTerm.toLowerCase();
+    return (
+      (o.orderId.toLowerCase().includes(s) ||
+        o.shippingAddress.toLowerCase().includes(s) ||
+        o.username.toLowerCase().includes(s) ||
+        o.products.some(p => p.name.toLowerCase().includes(s))) &&
+      (statusFilter === 'All' || o.status === statusFilter)
+    );
+  });
+
+  const getItemTotal = (p: Product) => (p.unitPrice * p.quantity).toFixed(2);
+  const getGrandTotal = (items: Product[]) =>
+    items.reduce((sum, p) => sum + p.unitPrice * p.quantity, 0).toFixed(2);
+
+  // ——— Cancel ———
   const handleCancelClick = (id: string) => {
     setOrderToCancel(id);
     setShowCancelModal(true);
   };
-  
   const confirmCancel = async () => {
     if (!orderToCancel) return;
     try {
-      // 1. Update order status
-      const orderUpdateRes = await updateOrder({ orderId: orderToCancel, status: 'CANCELLED' });
-      if (!orderUpdateRes) throw new Error('Order update failed');
-
-      // 2. Find the cancelled order data
-      const cancelledOrder = ordersToDisplay.find(o => o.orderId === orderToCancel)!;
-
-      // 3. Restock each product
-      await Promise.all(cancelledOrder.products.map(async prod => {
+      console.log('[confirmCancel] cancelling', orderToCancel);
+      const ok = await updateOrder({ orderId: orderToCancel, status: 'CANCELLED' });
+      if (!ok) throw new Error('Order update failed');
+      const cancelled = ordersToDisplay.find(o => o.orderId === orderToCancel)!;
+      await Promise.all(cancelled.products.map(async prod => {
         const pd = await loadProductById(prod.id);
         const map = stockArrayToMap(pd.stock);
         const newStock = (map[prod.size] || 0) + prod.quantity;
-
-        const updatedStockArray = pd.stock.map((item: { size: string; }) =>
-          item.size === prod.size
-            ? { ...item, stockAmount: newStock }
-            : item
+        const updated = pd.stock.map((item: { size: string; }) =>
+          item.size === prod.size ? { ...item, stockAmount: newStock } : item
         );
-        await updateProduct({ productId: prod.id, stock: updatedStockArray });
+        await updateProduct({ productId: prod.id, stock: updated });
       }));
-
-      // 4. Update UI
-      if (isCustomer) setUserOrder(null);
-      else setMonitoringOrders(prev =>
-        prev.map(o => o.orderId === orderToCancel ? { ...o, status: 'CANCELLED' } : o)
-      );
-      
       await refreshOrders();
-
       alert(`Order ${orderToCancel} cancelled and stock restocked.`);
     } catch (err) {
-      console.error(err);
+      console.error('[confirmCancel]', err);
       alert('Failed to cancel order.');
     } finally {
       setShowCancelModal(false);
@@ -148,7 +159,7 @@ const ListOrdersPage = () => {
     }
   };
 
-  // ————— Update Order Status —————
+  // ——— Update ———
   const handleUpdateClick = (id: string) => {
     setOrderToUpdate(id);
     setShowUpdateModal(true);
@@ -157,33 +168,25 @@ const ListOrdersPage = () => {
     if (!orderToUpdate) return;
     const newStatus = statusUpdates[orderToUpdate]!;
     try {
-      const res = await updateOrder({ orderId: orderToUpdate, status: newStatus });
-      if (!res) throw new Error('Order update failed');
-
-      // If admin set to 'Cancelled', also restock
+      console.log('[confirmUpdate]', orderToUpdate, '→', newStatus);
+      const ok = await updateOrder({ orderId: orderToUpdate, status: newStatus });
+      if (!ok) throw new Error('Order update failed');
       if (newStatus === 'CANCELLED') {
-        const updOrder = ordersToDisplay.find(o => o.orderId === orderToUpdate)!;
-        await Promise.all(updOrder.products.map(async prod => {
+        const upd = ordersToDisplay.find(o => o.orderId === orderToUpdate)!;
+        await Promise.all(upd.products.map(async prod => {
           const pd = await loadProductById(prod.id);
           const map = stockArrayToMap(pd.stock);
           const newStock = (map[prod.size] || 0) + prod.quantity;
-          const updatedStockArray = pd.stock.map((item: { size: string; }) =>
-            item.size === prod.size
-              ? { ...item, stockAmount: newStock }
-              : item
+          const updated = pd.stock.map((item: { size: string; }) =>
+            item.size === prod.size ? { ...item, stockAmount: newStock } : item
           );
-          await updateProduct({ productId: prod.id, stock: updatedStockArray });
+          await updateProduct({ productId: prod.id, stock: updated });
         }));
       }
-
-      // Refresh UI
-      setMonitoringOrders(prev =>
-        prev.map(o => o.orderId === orderToUpdate ? { ...o, status: newStatus } : o)
-      );
-
+      await refreshOrders();
       alert(`Order ${orderToUpdate} updated to ${newStatus}.`);
     } catch (err) {
-      console.error(err);
+      console.error('[confirmUpdate]', err);
       alert('Failed to update order status.');
     } finally {
       setShowUpdateModal(false);
@@ -191,14 +194,13 @@ const ListOrdersPage = () => {
     }
   };
 
-  // ————— Render —————
+  // ——— Render ———
   if (loading) return <Container className="text-center py-5"><Spinner /></Container>;
-  if (error)   return <Container className="text-center py-5"><Alert variant="danger">{error}</Alert></Container>;
+  if (error) return <Container className="text-center py-5"><Alert variant="danger">{error}</Alert></Container>;
 
   return (
     <Container style={{ maxWidth: 800, marginTop: 40, fontFamily: 'Times New Roman, serif' }}>
       <h2 className="mb-4 text-center">{isAdmin ? 'User Orders' : 'Your Orders'}</h2>
-
       <Form className="mb-4">
         <Row className="g-2">
           <Col md>
@@ -208,12 +210,6 @@ const ListOrdersPage = () => {
               onChange={e => setSearchTerm(e.target.value)}
             />
           </Col>
-          {/* <Col xs="auto">
-            <Form.Control type="date" value={afterDate}  onChange={e => setAfterDate(e.target.value)}  title="After" />
-          </Col> */}
-          {/* <Col xs="auto">
-            <Form.Control type="date" value={beforeDate} onChange={e => setBeforeDate(e.target.value)} title="Before" />
-          </Col> */}
           <Col xs="auto">
             <Form.Select
               value={statusFilter}
@@ -230,9 +226,7 @@ const ListOrdersPage = () => {
           </Col>
         </Row>
       </Form>
-
       {filtered.length === 0 && <p>No orders found.</p>}
-
       {filtered.map(o => (
         <Card className="mb-4 shadow-sm" key={o.orderId}>
           <Card.Header className="bg-light">
@@ -245,7 +239,6 @@ const ListOrdersPage = () => {
           <Card.Body>
             <p><strong>User:</strong> {o.username}</p>
             <p><strong>Address:</strong> {o.shippingAddress}</p>
-
             <h5>Items:</h5>
             {o.products.map(p => (
               <Row className="align-items-center mb-3" key={`${p.id}-${p.size}`}>
@@ -259,11 +252,9 @@ const ListOrdersPage = () => {
                 </Col>
               </Row>
             ))}
-
             <h5 className="text-end">
               Grand Total: <strong>${getGrandTotal(o.products)}</strong>
             </h5>
-
             <div className="d-flex justify-content-end gap-2">
               {isCustomer && o.status === 'PENDING' && (
                 <Button variant="danger" onClick={() => handleCancelClick(o.orderId)}>
@@ -296,18 +287,14 @@ const ListOrdersPage = () => {
           </Card.Body>
         </Card>
       ))}
-
-      {/* Cancel Modal */}
       <Modal show={showCancelModal} onHide={() => setShowCancelModal(false)} centered>
         <Modal.Header closeButton><Modal.Title>Cancel Order</Modal.Title></Modal.Header>
         <Modal.Body>Cancel order {orderToCancel}?</Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setShowCancelModal(false)}>No</Button>
-          <Button variant="danger"    onClick={confirmCancel}>Yes</Button>
+          <Button variant="danger" onClick={confirmCancel}>Yes</Button>
         </Modal.Footer>
       </Modal>
-
-      {/* Update Modal */}
       <Modal show={showUpdateModal} onHide={() => setShowUpdateModal(false)} centered>
         <Modal.Header closeButton><Modal.Title>Update Status</Modal.Title></Modal.Header>
         <Modal.Body>
@@ -315,7 +302,7 @@ const ListOrdersPage = () => {
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setShowUpdateModal(false)}>No</Button>
-          <Button variant="primary"    onClick={confirmUpdate} disabled={!orderToUpdate}>Yes</Button>
+          <Button variant="primary" onClick={confirmUpdate} disabled={!orderToUpdate}>Yes</Button>
         </Modal.Footer>
       </Modal>
     </Container>
