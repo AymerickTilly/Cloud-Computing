@@ -61,9 +61,17 @@ const Shop = () => {
     }
 
     if (selectedQuantity > selectedStock.stockAmount) {
-      alert(
+      if(selectedStock.stockAmount == 0){
+        alert(
+        `The stock for size ${selectedSize} is empty, please wait untill next supply`
+      );
+      }
+      else{
+        alert(
         `Only ${selectedStock.stockAmount} in stock for size ${selectedSize}. Please adjust quantity.`
       );
+      }
+      
       return;
     }
 
