@@ -23,6 +23,8 @@ const Checkout = () => {
   const [selectedBank, setSelectedBank] = useState('');
   const [products, setProducts] = useState<ProductItem[]>([]);
 
+  const { email } = useAuthStore();
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const user = useAuthStore((state: { user: any }) => state.user);
 
@@ -77,6 +79,7 @@ const Checkout = () => {
     const orderData = {
       orderId: uuidv4(),
       userId: user.username,
+      username: email,
       date: new Date().toISOString(),
       status: "PENDING",
       products: products.map(p => ({
