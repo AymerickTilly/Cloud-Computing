@@ -2,10 +2,9 @@ import { Amplify } from 'aws-amplify';
 import config from './amplifyconfiguration.json';
 Amplify.configure(config);
 import 'bootstrap/dist/css/bootstrap.min.css';
-import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Profile from "./pages/Profile";
-import { BrowserRouter, Route, Routes } from 'react-router';
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router';
 import RegisterForm from './pages/Register';
 import AdminPage from './pages/AdminPage';
 import Shop from './pages/Shop';
@@ -26,6 +25,7 @@ import ResetPasswordRoute from './routes/ResetPasswordRoute';
 import AddItemPage from './pages/AddItemPage';
 import UpdateItemPage from './pages/UpdateItemPage';
 import ListOrdersPage from './pages/ListOrdersPage';
+import Home from './pages/Home';
 
 const App = () => {
 
@@ -39,42 +39,49 @@ const App = () => {
   return (
     <>
       <BrowserRouter>
-        <LocationManager/>
-        {user && <NavigationBar />}
-        <Routes>
-            <Route element={<AuthenticationRoutes/>}>
+        <LocationManager />
+          {user && <NavigationBar />}
+          <Routes>
+            {/* Public (Unauthenticated) Routes */}
+            <Route element={<AuthenticationRoutes />}>
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<RegisterForm />} />
             </Route>
-          
-            <Route element={<ResetPasswordRoute/>}>
-              <Route path="/askResetCode" element={<AskResetCode/>}/>
-              <Route path="/resetPassword" element={<ResetPassword/>}/>
+
+            {/* Password Reset */}
+            <Route element={<ResetPasswordRoute />}>
+              <Route path="/askResetCode" element={<AskResetCode />} />
+              <Route path="/resetPassword" element={<ResetPassword />} />
             </Route>
-            <Route element={<ConfirmRegisterRoute/>}>
+
+            {/* Confirm Register */}
+            <Route element={<ConfirmRegisterRoute />}>
               <Route path="/confirmRegister" element={<ConfirmRegisterForm />} />
             </Route>
 
-            <Route element={<ProtectedRoutes />}>
-              <Route path="/" element={<Home />} />
-              <Route path="/shop" element={<Shop />} />
-              <Route path="/cart" element={<Cart />} />
-              <Route path="/listOrdersPage" element={<ListOrdersPage />} />
-              <Route path="/Checkout" element={<Checkout />} />
+            {/* Protected (Authenticated) Routes */}
+          <Route element={<ProtectedRoutes />}>
+            <Route path="/" element={<Home />} />
+            <Route path="/shop" element={<Shop />} />
+            <Route path="/cart" element={<Cart />} />
+            <Route path="/listOrdersPage" element={<ListOrdersPage />} />
+            <Route path="/checkout" element={<Checkout />} />
 
-            {/* // Admin Layout Route*/}
-              <Route element={<PrivateRoutes allowedGroups={['Admin']} />}>
-                <Route path="/admin" element={<AdminPage />} />
-                <Route path="/admin/add-item" element={<AddItemPage />} />
-              {/* // Admin Layout Route */}
-                <Route path="/admin/update-item" element={<UpdateItemPage />} />
-                <Route path="/admin/orders" element={<ListOrdersPage />} />
-              </Route>
-            
-              {/* // Admin Layout Route*/}
-              <Route element={<PrivateRoutes allowedGroups={['Customer']} />}>
-                <Route path="/profile" element={<Profile />} />
-              </Route>
+            {/* Admin-only Routes */}
+            <Route element={<PrivateRoutes allowedGroups={['Admin']} />}>
+              <Route path="/admin" element={<AdminPage />} />
+              <Route path="/admin/add-item" element={<AddItemPage />} />
+              <Route path="/admin/update-item" element={<UpdateItemPage />} />
+              <Route path="/admin/orders" element={<ListOrdersPage />} />
+            </Route>
+
+            {/* Customer-only Routes */}
+            <Route element={<PrivateRoutes allowedGroups={['Customer']} />}>
+              <Route path="/profile" element={<Profile />} />
+            </Route>
+
+            {/* Fallback for all protected routes */}
+            <Route path="*" element={<Navigate to="/" />} />
           </Route>
         </Routes>
       </BrowserRouter>
