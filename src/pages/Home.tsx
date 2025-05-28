@@ -7,7 +7,7 @@ import { loadProducts } from '../api/loadProducts';
 import Footer from '../components/Footer';
 import { Product } from '../types/Product';
 import { Slide } from '../types/Slide';
-import '../components/homestyling.css';
+import '../components/Homestyling.css';
 import backgroundImage from '../assets/background-texture.png';
 
 const Home = () => {
