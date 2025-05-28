@@ -47,7 +47,6 @@ const App = () => {
             <Route element={<AuthenticationRoutes />}>
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<RegisterForm />} />
-              <Route path="*" element={<NotFound />} />  {/* Custom 404 */}
             </Route>
 
             {/* Password Reset */}
