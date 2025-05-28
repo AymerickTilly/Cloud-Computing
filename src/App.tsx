@@ -26,7 +26,6 @@ import AddItemPage from './pages/AddItemPage';
 import UpdateItemPage from './pages/UpdateItemPage';
 import ListOrdersPage from './pages/ListOrdersPage';
 import Home from './pages/Home';
-import NotFound from './pages/NotFount';
 
 const App = () => {
 
