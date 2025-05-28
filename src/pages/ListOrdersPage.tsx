@@ -20,6 +20,7 @@ import { loadProductById } from '../api/loadProduct';
 import { updateOrder } from '../api/update_order';
 import { updateProduct } from '../api/updateProduct';
 import { Order, Product } from '../interface/Order';
+import backgroundImage from '../assets/background-texture.png';
 
 const ListOrdersPage = () => {
   const { user, groups } = useAuthStore();
@@ -190,8 +191,23 @@ const ListOrdersPage = () => {
   if (error) return <Container className="text-center py-5"><Alert variant="danger">{error}</Alert></Container>;
 
   return (
-    <Container style={{ maxWidth: 800, marginTop: 40, fontFamily: 'Times New Roman, serif' }}>
-      <h2 className="mb-4 text-center">{isAdmin ? 'User Orders' : 'Your Orders'}</h2>
+    <Container
+      style={{
+          maxWidth: 900,
+          fontFamily: 'arial, serif',
+          backgroundImage: `url(${backgroundImage})`,
+          backgroundSize: 'cover',
+          backgroundRepeat: 'no-repeat',
+          backgroundPosition: 'center',
+          backgroundColor: '#333333',
+          backgroundBlendMode: 'overlay',
+          minHeight: '100vh',
+          width: '100%',
+      }}
+      >
+      <h2 className="mb-4 text-center" style={{ paddingTop: '20px' }}>
+        {isAdmin ? 'User Orders' : 'Your Orders'}
+      </h2>
       <Form className="mb-4">
         <Row className="g-2">
           <Col md>

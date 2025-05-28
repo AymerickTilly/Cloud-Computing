@@ -10,6 +10,7 @@ import { addOrder } from '../api/addOrder';
 import { deleteCart } from '../api/deleteCart';
 import { updateProduct } from '../api/updateProduct';
 import { loadProductById } from '../api/loadProduct';
+import backgroundImage from '../assets/background-texture.png';
 
 interface CheckoutLocationState {
   selectedItems: ProductItem[];
@@ -191,7 +192,20 @@ const Checkout = () => {
   };
 
   return (
-    <Container style={{ maxWidth: 800, marginTop: 40, fontFamily: 'Times New Roman, serif' }}>
+    <Container
+          style={{
+            maxWidth: 800,
+            fontFamily: 'Arial, serif',
+            backgroundImage: `url(${backgroundImage})`,
+            backgroundSize: 'cover',
+            backgroundRepeat: 'no-repeat',
+            backgroundPosition: 'center',
+            backgroundColor: '#333333',
+            backgroundBlendMode: 'overlay',
+            padding: 20,
+            borderRadius: 10,
+          }}
+        >
       <div className="mb-3">
         <Button variant="primary" onClick={() => navigate('/cart')}>
           ← Back to Cart

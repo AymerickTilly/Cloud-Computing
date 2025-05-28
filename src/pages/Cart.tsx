@@ -72,7 +72,7 @@ const CartPage: React.FC = () => {
         paddingBottom: '40px',
       }}
     >
-      <Container className="py-5" style={{ fontFamily: 'Times New Roman, sans-serif' }}>
+      <Container className="py-5" style={{ fontFamily: 'Arial, sans-serif' }}>
         <h2 className="mb-4 text-center text-white">Your Cart</h2>
 
         {carts.length === 0 ? (
