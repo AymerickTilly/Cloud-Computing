@@ -1,7 +1,7 @@
 import { Carousel, Modal, Button } from 'react-bootstrap';
 import { useState } from 'react';
 import './Hover.css';
-import '../components/homestyling.css';
+import '../components/Homestyling.css';
 /*import { useAuthStore } from '../auth/AuthStore';*/
 
 type Slide = {
