@@ -1,6 +1,6 @@
 import { getIdToken } from "../auth/AuthStore";
 
-export async function loadUserById(userId: string) {
+export async function loadCartsByID(cartId: string) {
   const idToken = await getIdToken();
   console.log("ID Token:", idToken);
 
@@ -9,7 +9,7 @@ export async function loadUserById(userId: string) {
     return null;
   }
 
-  const url = `https://yv9hvyex77.execute-api.ap-southeast-2.amazonaws.com/dev/user?userId=${encodeURIComponent(userId)}`;
+  const url = `https://yv9hvyex77.execute-api.ap-southeast-2.amazonaws.com/dev/cart?userId=${encodeURIComponent(cartId)}`;
 
   const res = await fetch(url, {
     method: "GET",
@@ -20,7 +20,7 @@ export async function loadUserById(userId: string) {
   });
 
   if (!res.ok) {
-    throw new Error(`Failed to fetch product ${userId}: ${res.status}`);
+    throw new Error(`Failed to fetch cart ${cartId}: ${res.status}`);
   }
 
   return res.json();

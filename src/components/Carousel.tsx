@@ -1,14 +1,15 @@
 import { Carousel, Modal, Button } from 'react-bootstrap';
 import { useState } from 'react';
 import './Hover.css';
-import { useAuthStore } from '../auth/AuthStore';
+import '../components/homestyling.css';
+/*import { useAuthStore } from '../auth/AuthStore';*/
 
 type Slide = {
   image: string;
   alt: string;
-  title: string;    // Maps to product.name
-  text: string;     // Maps to product.description
-  productId: string; // For cart functionality
+  title: string;
+  text: string;
+  productId: string;
 };
 
 type CarouselComponentProps = {
@@ -19,8 +20,6 @@ const CarouselComponent = ({ slides }: CarouselComponentProps) => {
   const [showModal, setShowModal] = useState(false);
   const [selectedSlide, setSelectedSlide] = useState<Slide | null>(null);
 
-  const { groups } = useAuthStore();
-
   const handleSlideClick = (slide: Slide) => {
     setSelectedSlide(slide);
     setShowModal(true);
@@ -28,38 +27,31 @@ const CarouselComponent = ({ slides }: CarouselComponentProps) => {
 
   const handleClose = () => setShowModal(false);
 
-  const handleAddToCart = (slide: Slide | null) => {
-    if (!slide) return;
-    console.log('Added to cart:', slide.productId);
-    // Replace with your add-to-cart logic
-    setShowModal(false);
-  };
-
   return (
     <>
-      <Carousel
-          className="mb-4 carousel-hover"
-          style={{
-            transform: 'scale(0.8)',
-            transformOrigin: 'top center',
-          }}
-        >
-
-        {slides.map((slide) => (
-          <Carousel.Item
-            key={slide.productId}
-            className="hover-caption-wrapper"
-            onClick={() => handleSlideClick(slide)}
-            style={{ cursor: 'pointer' }}
+      <div className="carousel-card-wrapper">
+        <div className="carousel-card">
+          <Carousel
+            className="mb-4"
+            style={{ transform: 'scale(0.95)', transformOrigin: 'top center' }}
           >
-            <img className="d-block w-100" src={slide.image} alt={slide.alt} />
-            <Carousel.Caption className="hover-caption">
-              <h3>{slide.title}</h3>
-               {/* Added back to show product.description */}
-            </Carousel.Caption>
-          </Carousel.Item>
-        ))}
-      </Carousel>
+            {slides.map((slide) => (
+              <Carousel.Item
+                key={slide.productId}
+                onClick={() => handleSlideClick(slide)}
+                style={{ cursor: 'pointer', position: 'relative' }}
+              >
+                <img
+                  className="d-block w-100"
+                  src={slide.image}
+                  alt={slide.alt}
+                  style={{ zIndex: 1, position: 'relative' }}
+                />
+              </Carousel.Item>
+            ))}
+          </Carousel>
+        </div>
+      </div>
 
       <Modal show={showModal} onHide={handleClose} centered dialogClassName="custom-modal">
         <Modal.Header closeButton>
@@ -83,14 +75,7 @@ const CarouselComponent = ({ slides }: CarouselComponentProps) => {
           )}
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={handleClose}>
-            Close
-          </Button>
-          {groups.includes('Customer') && (
-            <Button variant="primary" onClick={() => handleAddToCart(selectedSlide)}>
-              Add to Cart
-            </Button>
-          )}
+          <Button variant="secondary" onClick={handleClose}>Close</Button>
         </Modal.Footer>
       </Modal>
     </>

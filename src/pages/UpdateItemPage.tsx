@@ -5,7 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { updateItemSchema, TUpdateItemSchema } from "../schemas/TupdateItemSchemas";
 import { loadProducts } from "../api/loadProducts";
 import { uploadImage } from "../api/uploadImage";
-import { updateAnItem } from "../api/updateProduct";
+import { updateProduct } from "../api/updateProduct";
 import { deleteImage } from "../api/deleteImage";
 import { deleteProduct } from "../api/deleteProduct";
 import ProductCard from "../components/ProductCard";
@@ -17,6 +17,7 @@ const UpdateItemPage = () => {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [uploadedImageUrl, setUploadedImageUrl] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
 
   const {
     register,
@@ -32,11 +33,15 @@ const UpdateItemPage = () => {
     },
   });
 
+  const filteredProducts = products.filter((product) =>
+  product.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   const { fields, append, remove } = useFieldArray({
     control,
     name: "stock",
   });
-
+  
   const loadAndSetProducts = async () => {
     try {
       const loaded = await loadProducts();
@@ -113,7 +118,7 @@ const UpdateItemPage = () => {
         imageUrl,
       };
 
-      const result = await updateAnItem(updatedProduct);
+      const result = await updateProduct(updatedProduct);
       if (!result) {
         alert("Failed to update product.");
         return;
@@ -160,8 +165,16 @@ const UpdateItemPage = () => {
 
   return (
       <Container className="py-4">
+        <Form className="mb-4">
+          <Form.Control
+            type="text"
+            placeholder="Search products by name..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </Form>
       <Row className="g-4">
-      {products.map((product) => (
+      {filteredProducts.map((product) => (
       <Col key={product.productId} xs={12} sm={6} md={4}>
         <ProductCard
         product={product}

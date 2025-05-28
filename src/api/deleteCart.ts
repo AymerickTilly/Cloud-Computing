@@ -2,11 +2,11 @@
 import { getIdToken } from "../auth/AuthStore"; // Adjust path if needed
 import { Cart } from "../types/Cart";
 
-export async function deleteProduct(cart: Cart): Promise<boolean> {
+export async function deleteCart(cart: Cart): Promise<boolean> {
   try {
     const idToken = await getIdToken();
     if (!idToken) {
-      console.error("No ID token available for deleting product");
+      console.error("No ID token available for deleting Cart");
       return false;
     }
 
@@ -24,13 +24,13 @@ export async function deleteProduct(cart: Cart): Promise<boolean> {
     );
 
     if (!res.ok) {
-      console.error("Product deletion failed:", res.status, res.statusText);
+      console.error("Cart deletion failed:", res.status, res.statusText);
       return false;
     }
 
     return true;
   } catch (error) {
-    console.error("Error deleting product:", error);
+    console.error("Error deleting Cart:", error);
     return false;
   }
 }

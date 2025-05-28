@@ -1,7 +1,7 @@
 import { getIdToken } from "../auth/AuthStore";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export async function updateAnItem(productData: any): Promise<any | null> {
+export async function updateProduct(productData: any): Promise<any | null> {
   try {
     const idToken = await getIdToken();
     console.log("ID Token from updateAnItem:", idToken ? "Valid token" : "No token");
