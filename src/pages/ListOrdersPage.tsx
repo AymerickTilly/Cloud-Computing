@@ -168,6 +168,22 @@ const ListOrdersPage = () => {
       setOrderToUpdate(null);
     }
   };
+  const getStatusColor = (status: string): string => {
+    switch (status.toUpperCase()) {
+      case 'PENDING':
+        return 'black';
+      case 'DELIVERED':
+        return 'green';
+      case 'PROCESSING':
+        return 'blue';
+      case 'SHIPPED':
+        return 'orange'; 
+      case 'CANCELLED':
+        return 'red';
+      default:
+        return 'gray';
+    }
+  };
 
   // ——— Render ———
   if (loading) return <Container className="text-center py-5"><Spinner /></Container>;
@@ -208,7 +224,10 @@ const ListOrdersPage = () => {
             <div className="d-flex justify-content-between flex-wrap">
               <span><strong>ID:</strong> {o.orderId}</span>
               <span><strong>Date:</strong> {new Date(o.date).toLocaleDateString()}</span>
-              <span><strong>Status:</strong> <strong>{o.status}</strong></span>
+              <span>
+                <strong>Status:</strong>{' '}
+                <strong style={{ color: getStatusColor(o.status) }}>{o.status}</strong>
+              </span>
             </div>
           </Card.Header>
           <Card.Body>
