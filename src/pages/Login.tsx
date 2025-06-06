@@ -9,7 +9,7 @@ import backgroundImage from '../assets/background-texture.png';
 
 const FormWithReactHookFormAndZod = () => {
   const navigate = useNavigate();
-  const { setPasswordReset, userId } = useAuthStore();
+  const { setPasswordReset, setUserId } = useAuthStore(); // ✅ added setUserId here
 
   const {
     register,
@@ -23,8 +23,8 @@ const FormWithReactHookFormAndZod = () => {
   const onSubmit = async (data: TsignInSchema) => {
     try {
       const { sub } = await signIn({ username: data.email, password: data.password });
-      useAuthStore.getState().setUserId(sub);
-      console.log(userId);
+      setUserId(sub); // ✅ correctly updates the store
+      console.log("userId set to:", sub); // ✅ logs the new userId
       navigate('/');
     } catch (err: unknown) {
       console.log(err);
