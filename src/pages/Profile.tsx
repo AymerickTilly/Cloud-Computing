@@ -18,7 +18,7 @@ export default function ProfilePage() {
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [editMode, setEditMode] = useState(false);
 
-  const { userId, user } = useAuthStore();
+  const { userId, email } = useAuthStore();
 
   const {
     register,
@@ -31,30 +31,36 @@ export default function ProfilePage() {
 
   useEffect(() => {
     async function fetchProfile() {
-      const data = await loadUserById(user.username);
-      if (data) {
-        setProfile(data);
-        setValue("address", data.address);
+      const id = userId ?? email;
+      if (!id) return;
+
+      try {
+        const data = await loadUserById(id);
+        if (data) {
+          setProfile(data);
+          setValue("address", data.address);
+        }
+      } catch (err) {
+        console.error("Failed to load user profile:", err);
       }
     }
     fetchProfile();
-  }, [setValue, user.username]);
+  }, [setValue, userId, email]);
 
   const onSubmit = async (formData: TprofileUpdateFormData) => {
-    console.log("Form Data Submitted:", formData);
-
     try {
-      if (!userId) {
+      const id = userId ?? email;
+      if (!id) {
         console.error("User ID is missing, cannot update profile.");
         return;
       }
 
       if (!profile) {
-        throw new Error("Failed to update profile.");
+        throw new Error("Profile not loaded yet.");
       }
 
       const userData: User = {
-        userId,
+        userId: id,
         username: profile.username,
         address: formData.address,
       };
@@ -85,7 +91,7 @@ export default function ProfilePage() {
         backgroundBlendMode: 'overlay',
         minHeight: '100vh',
         width: '100%',
-        paddingTop: '60px', // Optional: add some space if navbar overlaps
+        paddingTop: '60px',
       }}
     >
       <Container className="mt-5">
@@ -110,7 +116,7 @@ export default function ProfilePage() {
             </Col>
             <Col md={10}>
               <h4 className="mb-1">Profile</h4>
-              <p className="mb-4 text-muted">{profile?.username}</p>
+              <p className="mb-4 text-muted">{profile?.username ?? 'Loading...'}</p>
               <Form onSubmit={handleSubmit(onSubmit)}>
                 <Form.Group controlId="formAddress">
                   <Form.Label><strong>Delivery Address</strong></Form.Label>
