@@ -1,7 +1,6 @@
+// ✅ FILE: auth/AuthStore.ts
 import { create } from 'zustand';
 import { fetchAuthSession, getCurrentUser } from 'aws-amplify/auth';
-
-
 
 type AuthStore = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -33,7 +32,7 @@ export const useAuthStore = create<AuthStore>((set) => ({
   groups: [],
   pendingUsername: null,
   passwordReset: null,
-  address:null,
+  address: null,
   setUser: (user) => set({ user }),
   setLoading: (loading) => set({ loading }),
   setEmail: (email) => set({ email }),
@@ -50,32 +49,27 @@ export const useAuthStore = create<AuthStore>((set) => ({
       groups: [],
       pendingUsername: null,
       loading: false,
-      passwordReset: null
+      passwordReset: null,
     }),
 }));
 
-// Initialize auth state on app startup
 export const initAuth = async () => {
-  const { setLoading, setUser, setEmail, setGroups, resetAuth } = useAuthStore.getState();
+  const { setLoading, setUser, setEmail, setGroups, setUserId, resetAuth } = useAuthStore.getState();
   setLoading(true);
 
   try {
     const user = await getCurrentUser();
-
-    // Only fetch session if user is authenticated
     const session = await fetchAuthSession();
     const idToken = session.tokens?.idToken?.payload;
 
-    if (!idToken) {
-      throw new Error('No ID token found');
-    }
+    if (!idToken) throw new Error('No ID token found');
 
     const rawEmail = idToken.email;
     const email = typeof rawEmail === 'string' ? rawEmail : null;
     const rawGroups = idToken['cognito:groups'];
-    const groups = Array.isArray(rawGroups) && rawGroups.every((g) => typeof g === 'string')
-      ? rawGroups
-      : [];
+    const groups = Array.isArray(rawGroups) && rawGroups.every((g) => typeof g === 'string') ? rawGroups : [];
+    const sub = idToken.sub;
+    if (typeof sub === 'string') setUserId(sub); // ✅ NEW: Save userId from token
 
     setUser(user);
     setEmail(email);
@@ -83,7 +77,6 @@ export const initAuth = async () => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     if (error.name === 'UserUnAuthenticatedException') {
-      // No user is signed in — this is not an error
       console.log('User not signed in yet');
     } else {
       console.error('Error initializing auth:', error);
@@ -94,9 +87,7 @@ export const initAuth = async () => {
   }
 };
 
-
 export const getIdToken = async () => {
   const session = await fetchAuthSession();
   return session.tokens?.idToken?.toString() || null;
 };
-

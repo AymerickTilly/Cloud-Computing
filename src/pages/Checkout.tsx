@@ -24,10 +24,8 @@ const Checkout = () => {
   const [selectedBank, setSelectedBank] = useState('');
   const [products, setProducts] = useState<ProductItem[]>([]);
 
-  const { email } = useAuthStore();
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const user = useAuthStore((state: { user: any }) => state.user);
+  // Pull userId and email, avoid using user.username
+  const { userId, email } = useAuthStore();
 
   useEffect(() => {
     if (!state || !Array.isArray(state.selectedItems)) {
@@ -47,9 +45,9 @@ const Checkout = () => {
 
   useEffect(() => {
     async function fetchUser() {
-      if (user?.username) {
+      if (userId) {
         try {
-          const loadedUser = (await loadUserById(user.username)) as User | null;
+          const loadedUser = (await loadUserById(userId)) as User | null; // Use userId here
           if (loadedUser?.address) {
             setAddress(loadedUser.address);
           }
@@ -59,7 +57,7 @@ const Checkout = () => {
       }
     }
     fetchUser();
-  }, [user]);
+  }, [userId]);
 
   const getItemTotal = (product: ProductItem) => {
     if (typeof product.unitPrice !== 'number' || typeof product.quantity !== 'number') return '0.00';
@@ -76,116 +74,117 @@ const Checkout = () => {
   };
 
   const confirmPayment = async () => {
-  try {
-    const orderData = {
-      orderId: uuidv4(),
-      userId: user.username,
-      username: email,
-      date: new Date().toISOString(),
-      status: "PENDING",
-      products: products.map(p => ({
-        cartId: p.cartId,
-        id: p.id,
-        name: p.name,
-        image: p.image,
-        quantity: p.quantity,
-        size: p.size[0],
-        unitPrice: p.unitPrice,
-        totalPrice: p.unitPrice * p.quantity,
-      })),
-      totalAmount: parseFloat(getGrandTotal()),
-      shippingAddress: address,
-      paymentMethod: selectedBank,
-    };
-
-    // Helper function to convert stock array to map
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    function stockArrayToMap(stockArray: any[]) {
-      return stockArray.reduce((acc, item) => {
-        acc[item.size] = item.stockAmount;
-        return acc;
-      }, {});
-    }
-
-    const response = await addOrder(orderData);
-    if (response) {
-      const operationResults = await Promise.all(
-        orderData.products.map(async product => {
-          try {
-            // 1. Delete cart item
-            const deleteSuccess = await deleteCart({
-              userId: orderData.userId,
-              cartId: product.cartId,
-              productId: '',
-              name: '',
-              price: 0,
-              size: '',
-              quantity: 0,
-              imageUrl: ''
-            });
-
-            // 2. Load product to get current stock
-            const productData = await loadProductById(product.id);
-            if (!productData || !productData.stock) {
-              console.warn(`Invalid product or stock data for product ID ${product.id}`);
-              return false;
-            }
-
-            // Convert stock array to map
-            const stockMap = stockArrayToMap(productData.stock);
-
-            if (typeof stockMap[product.size] !== 'number') {
-              console.warn(`Invalid stock data for product ID ${product.id}, size ${product.size}`, productData.stock);
-              return false;
-            }
-
-            const current_stock = stockMap[product.size];
-            const new_stock = current_stock - product.quantity;
-
-            if (new_stock < 0) {
-              console.warn(`Stock would go negative for product ${product.id} (${product.size})`);
-              return false;
-            }
-
-            // Update stock map with new stock
-            const updatedStockArray = productData.stock.map((item: { size: string; }) =>
-              item.size === product.size ? { ...item, stockAmount: new_stock } : item
-            );
-
-            // 3. Update stock
-            const updateSuccess = await updateProduct({
-              productId: product.id,
-              stock: updatedStockArray,
-            });
-
-            return deleteSuccess && updateSuccess;
-          } catch (err) {
-            console.error(`Error processing product ${product.id}:`, err);
-            return false;
-          }
-        })
-      );
-
-      const failedOps = operationResults.filter(success => !success);
-      if (failedOps.length > 0) {
-        console.warn(`${failedOps.length} product(s) failed to process (delete/update).`);
+    try {
+      if (!userId) {
+        alert('User not logged in or missing user ID.');
+        return;
       }
 
-      alert(`Order placed successfully!\nOrder ID: ${response.item.orderId}`);
-      navigate('/listOrdersPage', {
-      state: { orderId: response.item.orderId }
-    });
-    } else {
-      alert('Failed to place order.');
-    }
-  } catch (err) {
-    console.error('Order error:', err);
-    alert('Something went wrong. Try again.');
-  } finally {
-    setShowConfirmModal(false);
-  }
-};
+      const orderData = {
+        orderId: uuidv4(),
+        userId,          // Use userId here
+        username: email,  // Email can be username or display name
+        date: new Date().toISOString(),
+        status: "PENDING",
+        products: products.map(p => ({
+          cartId: p.cartId,
+          id: p.id,
+          name: p.name,
+          image: p.image,
+          quantity: p.quantity,
+          size: p.size[0],
+          unitPrice: p.unitPrice,
+          totalPrice: p.unitPrice * p.quantity,
+        })),
+        totalAmount: parseFloat(getGrandTotal()),
+        shippingAddress: address,
+        paymentMethod: selectedBank,
+      };
 
+      // Helper function to convert stock array to map
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      function stockArrayToMap(stockArray: any[]) {
+        return stockArray.reduce((acc, item) => {
+          acc[item.size] = item.stockAmount;
+          return acc;
+        }, {} as Record<string, number>);
+      }
+
+      const response = await addOrder(orderData);
+      if (response) {
+        const operationResults = await Promise.all(
+          orderData.products.map(async product => {
+            try {
+              // Delete cart item
+              const deleteSuccess = await deleteCart({
+                userId: orderData.userId,
+                cartId: product.cartId,
+                productId: '',
+                name: '',
+                price: 0,
+                size: '',
+                quantity: 0,
+                imageUrl: ''
+              });
+
+              // Load product stock
+              const productData = await loadProductById(product.id);
+              if (!productData || !productData.stock) {
+                console.warn(`Invalid product or stock data for product ID ${product.id}`);
+                return false;
+              }
+
+              const stockMap = stockArrayToMap(productData.stock);
+
+              if (typeof stockMap[product.size] !== 'number') {
+                console.warn(`Invalid stock data for product ID ${product.id}, size ${product.size}`, productData.stock);
+                return false;
+              }
+
+              const current_stock = stockMap[product.size];
+              const new_stock = current_stock - product.quantity;
+
+              if (new_stock < 0) {
+                console.warn(`Stock would go negative for product ${product.id} (${product.size})`);
+                return false;
+              }
+
+              const updatedStockArray = productData.stock.map((item: { size: string; }) =>
+                item.size === product.size ? { ...item, stockAmount: new_stock } : item
+              );
+
+              const updateSuccess = await updateProduct({
+                productId: product.id,
+                stock: updatedStockArray,
+              });
+
+              return deleteSuccess && updateSuccess;
+            } catch (err) {
+              console.error(`Error processing product ${product.id}:`, err);
+              return false;
+            }
+          })
+        );
+
+        const failedOps = operationResults.filter(success => !success);
+        if (failedOps.length > 0) {
+          console.warn(`${failedOps.length} product(s) failed to process (delete/update).`);
+        }
+
+        alert(`Order placed successfully!\nOrder ID: ${response.item.orderId}`);
+        navigate('/listOrdersPage', {
+          state: { orderId: response.item.orderId }
+        });
+      } else {
+        alert('Failed to place order.');
+      }
+    } catch (err) {
+      console.error('Order error:', err);
+      alert('Something went wrong. Try again.');
+    } finally {
+      setShowConfirmModal(false);
+    }
+  };
 
   const handlePayment = () => {
     setShowConfirmModal(true);
@@ -193,19 +192,19 @@ const Checkout = () => {
 
   return (
     <Container
-          style={{
-            maxWidth: 800,
-            fontFamily: 'Arial, serif',
-            backgroundImage: `url(${backgroundImage})`,
-            backgroundSize: 'cover',
-            backgroundRepeat: 'no-repeat',
-            backgroundPosition: 'center',
-            backgroundColor: '#333333',
-            backgroundBlendMode: 'overlay',
-            padding: 20,
-            borderRadius: 10,
-          }}
-        >
+      style={{
+        maxWidth: 800,
+        fontFamily: 'Arial, serif',
+        backgroundImage: `url(${backgroundImage})`,
+        backgroundSize: 'cover',
+        backgroundRepeat: 'no-repeat',
+        backgroundPosition: 'center',
+        backgroundColor: '#333333',
+        backgroundBlendMode: 'overlay',
+        padding: 20,
+        borderRadius: 10,
+      }}
+    >
       <div className="mb-3">
         <Button variant="primary" onClick={() => navigate('/cart')}>
           ← Back to Cart

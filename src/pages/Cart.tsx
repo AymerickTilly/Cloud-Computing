@@ -9,17 +9,20 @@ import backgroundImage from '../assets/background-texture.png';
 
 const CartPage: React.FC = () => {
   const navigate = useNavigate();
-  const { user, loading } = useAuthStore();
+  const { userId, loading } = useAuthStore(); // <-- using userId here
   const [carts, setCarts] = useState<Cart[]>([]);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [isLoadingCarts, setIsLoadingCarts] = useState(false);
 
   useEffect(() => {
-    if (!user?.username) return;
+    if (!userId) return;
 
-    loadCartsByID(user.username)
+    setIsLoadingCarts(true);
+    loadCartsByID(userId)
       .then(setCarts)
-      .catch((err) => console.error("Failed to load cart:", err));
-  }, [user]);
+      .catch((err) => console.error("Failed to load cart:", err))
+      .finally(() => setIsLoadingCarts(false));
+  }, [userId]);
 
   const toggleAll = () => {
     setSelectedIds(selectedIds.length === carts.length ? [] : carts.map(c => c.cartId));
@@ -32,6 +35,7 @@ const CartPage: React.FC = () => {
   };
 
   const handleQuantityChange = (cartId: string, quantity: number) => {
+    if (quantity < 1) return; // Prevent zero or negative quantity
     setCarts(prev =>
       prev.map(c => c.cartId === cartId ? { ...c, quantity } : c)
     );
@@ -54,7 +58,7 @@ const CartPage: React.FC = () => {
       .reduce((sum, c) => sum + getSubtotal(c), 0)
       .toFixed(2);
 
-  if (loading) return <p>Loading...</p>;
+  if (loading || isLoadingCarts) return <p>Loading...</p>;
 
   return (
     <div
@@ -119,7 +123,7 @@ const CartPage: React.FC = () => {
                     <Col xs={2}>
                       <Form.Group>
                         <Form.Label>Size</Form.Label>
-                        <Form.Select defaultValue={item.size}>
+                        <Form.Select defaultValue={item.size} disabled>
                           <option>{item.size}</option>
                         </Form.Select>
                       </Form.Group>
