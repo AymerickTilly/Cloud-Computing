@@ -23,7 +23,7 @@ import { Order, Product } from '../interface/Order';
 import backgroundImage from '../assets/background-texture.png';
 
 const ListOrdersPage = () => {
-  const { user, groups } = useAuthStore();
+  const { userId, groups } = useAuthStore(); // ✅ include userId directly
   const isCustomer = groups.includes('Customer');
   const isAdmin = groups.includes('Admin');
 
@@ -41,53 +41,49 @@ const ListOrdersPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Helper: stock array → map
   const stockArrayToMap = (stock: { size: string; stockAmount: number }[]) =>
     stock.reduce<Record<string, number>>((acc, item) => {
       acc[item.size] = item.stockAmount;
       return acc;
     }, {});
 
-  // ——— Refresh / initial load ———
   const refreshOrders = async () => {
-  console.log('[refreshOrders] user:', user);
-  if (!user) {
-    console.warn('[refreshOrders] no user, skipping load');
-    return;
-  }
-
-  setLoading(true);
-  setError(null);
-
-  try {
-    if (isAdmin) {
-      const all = await loadOrders();
-      console.log('[refreshOrders] admin loadOrders →', all);
-      setMonitoringOrders(all);
-    } else if (isCustomer) {
-      const all = await loadOrders();
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const mine = all.filter((o: { userId: any; }) => o.userId === user.userId);
-      console.log(`[refreshOrders] filtered ${mine.length} orders for userId "${user.userId}"`);
-      setMonitoringOrders(mine);
+    console.log('[refreshOrders] userId:', userId);
+    if (!userId) {
+      console.warn('[refreshOrders] userId not ready, skipping');
+      return;
     }
-  } catch (err) {
-    console.error('[refreshOrders] error', err);
-    setError('Failed to load orders.');
-  } finally {
-    setLoading(false);
-  }
-};
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const all = await loadOrders();
+      if (isAdmin) {
+        console.log('[refreshOrders] admin orders:', all);
+        setMonitoringOrders(all);
+      } else if (isCustomer) {
+        const mine = all.filter((o: { userId: string; }) => o.userId === userId);
+        console.log(`[refreshOrders] ${mine.length} orders for userId "${userId}"`);
+        setMonitoringOrders(mine);
+      }
+    } catch (err) {
+      console.error('[refreshOrders] error', err);
+      setError('Failed to load orders.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    refreshOrders();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, isAdmin, isCustomer, orderIdFromState]);
+    if (userId) {
+      refreshOrders();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userId, isAdmin, isCustomer, orderIdFromState]);
 
-  // Decide which array to render
   const ordersToDisplay = monitoringOrders;
 
-  // ——— Filtering & totals ———
   const filtered = ordersToDisplay.filter(o => {
     const s = searchTerm.toLowerCase();
     return (
@@ -103,11 +99,11 @@ const ListOrdersPage = () => {
   const getGrandTotal = (items: Product[]) =>
     items.reduce((sum, p) => sum + p.unitPrice * p.quantity, 0).toFixed(2);
 
-  // ——— Cancel ———
   const handleCancelClick = (id: string) => {
     setOrderToCancel(id);
     setShowCancelModal(true);
   };
+
   const confirmCancel = async () => {
     if (!orderToCancel) return;
     try {
@@ -135,11 +131,11 @@ const ListOrdersPage = () => {
     }
   };
 
-  // ——— Update ———
   const handleUpdateClick = (id: string) => {
     setOrderToUpdate(id);
     setShowUpdateModal(true);
   };
+
   const confirmUpdate = async () => {
     if (!orderToUpdate) return;
     const newStatus = statusUpdates[orderToUpdate]!;
@@ -169,42 +165,49 @@ const ListOrdersPage = () => {
       setOrderToUpdate(null);
     }
   };
+
   const getStatusColor = (status: string): string => {
     switch (status.toUpperCase()) {
-      case 'PENDING':
-        return 'black';
-      case 'DELIVERED':
-        return 'green';
-      case 'PROCESSING':
-        return 'blue';
-      case 'SHIPPED':
-        return 'orange'; 
-      case 'CANCELLED':
-        return 'red';
-      default:
-        return 'gray';
+      case 'PENDING': return 'black';
+      case 'DELIVERED': return 'green';
+      case 'PROCESSING': return 'blue';
+      case 'SHIPPED': return 'orange';
+      case 'CANCELLED': return 'red';
+      default: return 'gray';
     }
   };
 
-  // ——— Render ———
-  if (loading) return <Container className="text-center py-5"><Spinner /></Container>;
-  if (error) return <Container className="text-center py-5"><Alert variant="danger">{error}</Alert></Container>;
+  if (!userId || loading) {
+    return (
+      <Container className="text-center py-5">
+        <Spinner animation="border" />
+      </Container>
+    );
+  }
+
+  if (error) {
+    return (
+      <Container className="text-center py-5">
+        <Alert variant="danger">{error}</Alert>
+      </Container>
+    );
+  }
 
   return (
     <Container
       style={{
-          maxWidth: 900,
-          fontFamily: 'arial, serif',
-          backgroundImage: `url(${backgroundImage})`,
-          backgroundSize: 'cover',
-          backgroundRepeat: 'no-repeat',
-          backgroundPosition: 'center',
-          backgroundColor: '#333333',
-          backgroundBlendMode: 'overlay',
-          minHeight: '100vh',
-          width: '100%',
+        maxWidth: 900,
+        fontFamily: 'arial, serif',
+        backgroundImage: `url(${backgroundImage})`,
+        backgroundSize: 'cover',
+        backgroundRepeat: 'no-repeat',
+        backgroundPosition: 'center',
+        backgroundColor: '#333333',
+        backgroundBlendMode: 'overlay',
+        minHeight: '100vh',
+        width: '100%',
       }}
-      >
+    >
       <h2 className="mb-4 text-center" style={{ paddingTop: '20px' }}>
         {isAdmin ? 'User Orders' : 'Your Orders'}
       </h2>
@@ -220,8 +223,7 @@ const ListOrdersPage = () => {
           <Col xs="auto">
             <Form.Select
               value={statusFilter}
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              onChange={e => setStatusFilter(e.target.value as any)}
+              onChange={e => setStatusFilter(e.target.value as Order['status'] | 'All')}
             >
               <option value="All">All Statuses</option>
               <option value="PENDING">PENDING</option>
@@ -233,7 +235,9 @@ const ListOrdersPage = () => {
           </Col>
         </Row>
       </Form>
+
       {filtered.length === 0 && <p>No orders found.</p>}
+
       {filtered.map(o => (
         <Card className="mb-4 shadow-sm" key={o.orderId}>
           <Card.Header className="bg-light">
@@ -297,6 +301,7 @@ const ListOrdersPage = () => {
           </Card.Body>
         </Card>
       ))}
+
       <Modal show={showCancelModal} onHide={() => setShowCancelModal(false)} centered>
         <Modal.Header closeButton><Modal.Title>Cancel Order</Modal.Title></Modal.Header>
         <Modal.Body>Cancel order {orderToCancel}?</Modal.Body>
@@ -305,6 +310,7 @@ const ListOrdersPage = () => {
           <Button variant="danger" onClick={confirmCancel}>Yes</Button>
         </Modal.Footer>
       </Modal>
+
       <Modal show={showUpdateModal} onHide={() => setShowUpdateModal(false)} centered>
         <Modal.Header closeButton><Modal.Title>Update Status</Modal.Title></Modal.Header>
         <Modal.Body>
