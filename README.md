@@ -31,7 +31,7 @@ The application is built on a fully **serverless AWS architecture**:
 
 ## 🗄️ Data Model
 
-Four DynamoDB tables: **User**, **Product**, **Cart**, and **Order** — designed to support dynamic inventory tracking, size-specific stock management, and full order lifecycle handling.
+Four DynamoDB tables: **User**, **Product**, **Cart**, and **Order**, which were designed to support dynamic inventory tracking, size-specific stock management, and full order lifecycle handling.
 
 ## 🔗 Links
 
