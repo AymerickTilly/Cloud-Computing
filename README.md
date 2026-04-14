@@ -1,7 +1,3 @@
-Here's a README for your GitHub repo:
-
----
-
 # RAIR Clothing — Cloud Computing Project
 
 A cloud-native e-commerce web application built as a university team project. RAIR Clothing is an online fashion platform targeting New Zealand customers, allowing users to browse and purchase clothing, manage their cart, and track orders — while giving store administrators tools to manage inventory and fulfil orders.
